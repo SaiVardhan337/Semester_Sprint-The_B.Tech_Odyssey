@@ -194,7 +194,7 @@ function processSpriteSheetPlaid() {
 class AudioSynth {
     constructor() {
         this.ctx = null;
-        this.muted = true;
+        this.muted = localStorage.getItem('btech-muted') !== 'false'; // Defaults to true (muted)
         this.seqTimer = null;
         this.seqIndex = 0;
         
@@ -222,6 +222,7 @@ class AudioSynth {
 
     toggleMute() {
         this.muted = !this.muted;
+        localStorage.setItem('btech-muted', this.muted);
         if (this.muted) {
             soundBtn.textContent = 'MUTED';
             soundBtn.classList.remove('unmuted');
@@ -2378,6 +2379,17 @@ requestAnimationFrame(gameLoop);
 document.getElementById('notif-popup').addEventListener('click', () => {
     dismissNotif();
 });
+
+// --- Sound Button Initialization ---
+const savedMute = localStorage.getItem('btech-muted') !== 'false';
+synth.muted = savedMute;
+if (savedMute) {
+    soundBtn.textContent = 'MUTED';
+    soundBtn.classList.remove('unmuted');
+} else {
+    soundBtn.textContent = 'SOUND ON';
+    soundBtn.classList.add('unmuted');
+}
 
 // --- Theme Toggle Logic & Event Listeners ---
 const savedTheme = localStorage.getItem('btech-theme') || 'light';
