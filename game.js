@@ -1252,6 +1252,26 @@ class GameItem {
                 // Stands on the floor
                 this.y = player.groundY + 24; 
                 break;
+            case 'podium':
+                this.width = 40;
+                this.height = 60;
+                this.y = player.groundY; // stands on pavement/floor
+                break;
+            case 'backpack':
+                this.width = 34;
+                this.height = 34;
+                this.y = player.groundY + 26; // lies on floor
+                break;
+            case 'classmate':
+                this.width = 32;
+                this.height = 70;
+                this.y = player.groundY - 10; // stands on floor
+                break;
+            case 'wetsign':
+                this.width = 30;
+                this.height = 42;
+                this.y = player.groundY + 18; // stands on floor
+                break;
             case 'pothole':
                 // Pothole is on road surface (road starts at groundY+40)
                 this.width = 56;
@@ -1391,7 +1411,7 @@ class GameItem {
 
             case 'bench':
                 // Corridor/classroom wooden bench
-                ctx.fillStyle = '#795548'; // Brown wooden seat
+                ctx.fillStyle = '#795548'; // Wood wooden seat
                 ctx.fillRect(this.x, this.y + 10, this.width, 8);
                 ctx.fillStyle = '#4e342e'; // Dark brown legs
                 ctx.fillRect(this.x + 8, this.y + 18, 6, 18);
@@ -1400,6 +1420,120 @@ class GameItem {
                 ctx.fillRect(this.x, this.y, this.width, 6);
                 ctx.fillRect(this.x + 8, this.y + 6, 6, 4);
                 ctx.fillRect(this.x + this.width - 14, this.y + 6, 6, 4);
+                break;
+
+            case 'podium':
+                // Wooden podium body
+                ctx.fillStyle = '#6d4c41'; // Dark wooden body
+                ctx.fillRect(this.x + 4, this.y + 10, this.width - 8, this.height - 10);
+                
+                // Slanted top board
+                ctx.fillStyle = '#8d6e63'; // Lighter brown top
+                ctx.fillRect(this.x, this.y + 2, this.width, 8);
+                
+                // Standing microphone
+                ctx.strokeStyle = '#333333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(this.x + 12, this.y + 2);
+                ctx.lineTo(this.x + 8, this.y - 12);
+                ctx.stroke();
+                
+                // Mic head
+                ctx.fillStyle = '#aaaaaa';
+                ctx.fillRect(this.x + 6, this.y - 15, 4, 4);
+                
+                // White paper notes on podium
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(this.x + 20, this.y + 4, 12, 4);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(this.x + 22, this.y + 6, 8, 1);
+                break;
+
+            case 'backpack':
+                // Main backpack bag
+                ctx.fillStyle = '#0288d1'; // Bright blue backpack
+                ctx.fillRect(this.x + 4, this.y + 4, this.width - 8, this.height - 4);
+                
+                // Front pocket
+                ctx.fillStyle = '#03a9f4'; // Lighter blue front pocket
+                ctx.fillRect(this.x + 8, this.y + 14, this.width - 16, this.height - 18);
+                
+                // Handle/Strap loops
+                ctx.fillStyle = '#01579b'; // Dark blue straps/handle
+                ctx.fillRect(this.x + 12, this.y, 10, 4);
+                
+                // Zipper detailing
+                ctx.fillStyle = '#cfd8dc'; // Silver zipper
+                ctx.fillRect(this.x + 6, this.y + 12, this.width - 12, 2);
+                ctx.fillRect(this.x + 10, this.y + 24, this.width - 20, 2);
+                break;
+
+            case 'classmate':
+                // Hoodie (Torso)
+                ctx.fillStyle = '#78909c'; // Blue-grey hoodie
+                ctx.fillRect(this.x + 6, this.y + 16, 20, 28);
+                
+                // Jeans (Legs)
+                ctx.fillStyle = '#3f51b5'; // Blue jeans
+                ctx.fillRect(this.x + 8, this.y + 44, 7, 26);
+                ctx.fillRect(this.x + 17, this.y + 44, 7, 26);
+                
+                // Head
+                ctx.fillStyle = '#ffdbb5'; // Skin color
+                ctx.fillRect(this.x + 8, this.y + 2, 16, 14);
+                
+                // Hair/Hood top
+                ctx.fillStyle = '#546e7a'; // Hood outline
+                ctx.fillRect(this.x + 6, this.y, 20, 4);
+                ctx.fillRect(this.x + 6, this.y, 4, 16);
+                ctx.fillRect(this.x + 22, this.y, 4, 16);
+                
+                // Staring down head tilt (face features looking down)
+                ctx.fillStyle = '#263238'; // Downcast eyes
+                ctx.fillRect(this.x + 10, this.y + 8, 3, 2);
+                
+                // Glowing smartphone in hands
+                ctx.fillStyle = '#ffdbb5'; // Hands
+                ctx.fillRect(this.x + 18, this.y + 26, 6, 6);
+                ctx.fillStyle = '#00e5ff'; // Glowing cyan screen
+                ctx.fillRect(this.x + 22, this.y + 22, 6, 8);
+                // Screen glow overlay
+                ctx.fillStyle = 'rgba(0, 229, 255, 0.15)';
+                ctx.beginPath();
+                ctx.arc(this.x + 25, this.y + 26, 12, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+
+            case 'wetsign':
+                // Yellow plastic body
+                ctx.fillStyle = '#ffeb3b'; // Warning yellow
+                ctx.beginPath();
+                ctx.moveTo(this.x + 6, this.y + this.height);
+                ctx.lineTo(this.x + 12, this.y);
+                ctx.lineTo(this.x + 18, this.y);
+                ctx.lineTo(this.x + 24, this.y + this.height);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Black hinge at top
+                ctx.fillStyle = '#212121';
+                ctx.fillRect(this.x + 12, this.y, 6, 3);
+                
+                // CAUTION sign graphics
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(this.x + 15, this.y + 10);
+                ctx.lineTo(this.x + 10, this.y + 32);
+                ctx.lineTo(this.x + 20, this.y + 32);
+                ctx.closePath();
+                ctx.stroke();
+                
+                // Slipping man figure (caution figure detail)
+                ctx.fillStyle = '#d32f2f'; // Red warning sign mark
+                ctx.fillRect(this.x + 14, this.y + 16, 2, 8);
+                ctx.fillRect(this.x + 14, this.y + 26, 2, 2);
                 break;
 
             case 'sharma':
@@ -1589,7 +1723,7 @@ function spawnItems() {
             let obsType;
             if (currentLevel === 2) {
                 // School / Classroom indoor obstacles (No cars or dogs!)
-                obsType = ['bench', 'sharma', 'bug', 'pothole', 'trashcan'][Math.floor(Math.random() * 5)];
+                obsType = ['bench', 'podium', 'backpack', 'classmate', 'wetsign', 'sharma', 'bug'][Math.floor(Math.random() * 7)];
             } else {
                 // Street obstacles
                 obsType = ['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'trashcan'][Math.floor(Math.random() * 7)];
@@ -1759,7 +1893,7 @@ function handleCollisions() {
 
         if (checkCollision(pHbox, iHbox)) {
             // Collision occurred!
-            if (['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'bench', 'trashcan'].includes(item.type)) {
+            if (['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'bench', 'trashcan', 'podium', 'backpack', 'classmate', 'wetsign'].includes(item.type)) {
                 // Hitting Obstacle
                 if (invincibilityTimer > 0) {
                     // Destroy obstacle
