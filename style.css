@@ -23,6 +23,7 @@
     padding: 0;
     user-select: none;
     -webkit-user-drag: none;
+    -webkit-tap-highlight-color: transparent; /* Remove blue highlight flash on tap */
 }
 
 body {
@@ -153,6 +154,7 @@ body {
     height: 100%;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
+    touch-action: none; /* Disable double-tap zoom and swipe scrolls to keep inputs instant */
 }
 
 /* Dynamic HUD Overlay */
