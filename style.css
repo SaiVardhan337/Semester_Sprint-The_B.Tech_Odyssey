@@ -601,7 +601,10 @@ body {
     }
     .crt-screen {
         width: 100%;
-        height: 50vw;
+        max-width: calc((100vh - 130px) * 2);
+        aspect-ratio: 2 / 1;
+        height: auto;
+        margin: 0 auto;
     }
 }
 
@@ -938,7 +941,10 @@ body.dark-theme .coin-light {
 
     .crt-screen {
         width: 100%;
-        height: calc((100vw - 20px) * 0.5); /* Force 2:1 aspect ratio */
+        max-width: calc((100vh - 130px) * 2); /* Fit screen height in landscape */
+        aspect-ratio: 2 / 1;
+        height: auto;
+        margin: 0 auto;
         border: 6px solid #3b4252;
         border-radius: 6px;
     }
