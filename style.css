@@ -1092,6 +1092,87 @@ body.dark-theme .coin-light {
     }
 }
 
+/* ============================================================
+   SKIN SELECTOR SYSTEM STYLING
+   ============================================================ */
+.skin-selector-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 15px 0;
+    width: 100%;
+}
+
+.skin-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 5px rgba(245, 127, 23, 0.4);
+    letter-spacing: 1px;
+}
+
+.skin-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.skin-option-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(46, 52, 64, 0.6);
+    border: 2px solid #4c566a;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.skin-option-card:hover {
+    background: rgba(76, 86, 106, 0.8);
+    border-color: #d8dee9;
+    transform: translateY(-2px);
+}
+
+.skin-option-card.active {
+    background: rgba(163, 190, 140, 0.25);
+    border-color: var(--neon-green);
+    box-shadow: 0 0 10px rgba(163, 190, 140, 0.4);
+}
+
+.skin-avatar {
+    font-size: 14px;
+}
+
+.skin-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #e5e9f0;
+    letter-spacing: 1px;
+}
+
+/* Scaling skin cards on mobile */
+@media (max-width: 900px) {
+    .skin-selector-container {
+        margin: 8px 0;
+    }
+    .skin-label {
+        font-size: 6px;
+    }
+    .skin-option-card {
+        padding: 4px 8px;
+        border-width: 1px;
+    }
+    .skin-avatar {
+        font-size: 11px;
+    }
+    .skin-name {
+        font-size: 9px;
+    }
+}
+
 @keyframes rotate-animation {
     0% { transform: rotate(0deg); }
     50% { transform: rotate(-90deg); }

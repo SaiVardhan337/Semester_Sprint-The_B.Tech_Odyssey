@@ -29,6 +29,11 @@ const highScoreEl = document.getElementById('high-score');
 const pauseToggleBtn = document.getElementById('pause-toggle-btn');
 const themeToggleBtn = document.getElementById('theme-toggle-btn');
 
+// Skin Selector Selectors
+const skinBtnStandard = document.getElementById('skin-btn-standard');
+const skinBtnPlaid = document.getElementById('skin-btn-plaid');
+let selectedSkin = localStorage.getItem('btech-skin') || 'standard';
+
 // Game States
 let gameState = 'MENU'; // MENU, PLAYING, PLAYING_L2, GAMEOVER, PAUSED, WIN, WIN_L1, NOTIF
 let currentLevel = 1;
@@ -1184,13 +1189,18 @@ const player = {
             }
         }
 
-        let activeCanvas = transparentSpritePlaidCanvas;
-        let isActiveLoaded = isSpriteSheetPlaidLoaded;
+        let activeCanvas = transparentSpriteCanvas;
+        let isActiveLoaded = isSpriteSheetLoaded;
         
-        // Fallback to standard sheet if plaid sheet isn't loaded yet
-        if (!isActiveLoaded || !activeCanvas) {
-            activeCanvas = transparentSpriteCanvas;
-            isActiveLoaded = isSpriteSheetLoaded;
+        if (selectedSkin === 'plaid') {
+            activeCanvas = transparentSpritePlaidCanvas;
+            isActiveLoaded = isSpriteSheetPlaidLoaded;
+            
+            // Fallback to standard sheet if plaid sheet isn't loaded yet
+            if (!isActiveLoaded || !activeCanvas) {
+                activeCanvas = transparentSpriteCanvas;
+                isActiveLoaded = isSpriteSheetLoaded;
+            }
         }
 
         if (isActiveLoaded && activeCanvas) {
@@ -1340,6 +1350,21 @@ class GameItem {
                 this.width = 24;
                 this.height = 24;
                 this.y = player.groundY - 20;
+                break;
+            case 'question':
+                this.width = 100;
+                this.height = 24;
+                this.isHigh = Math.random() < 0.5;
+                this.y = this.isHigh ? player.groundY - 45 : player.groundY + 15;
+                const questions = ["QuickSort?", "Dijkstra?", "P vs NP?", "Time Comp?", "Pointers?", "B-Tree?"];
+                this.questionText = questions[Math.floor(Math.random() * questions.length)];
+                break;
+            case 'code':
+                this.width = 75;
+                this.height = 20;
+                this.y = player.groundY - 30 - Math.random() * 100;
+                const snippets = ["O(N log N)", "return 0;", "int x = 5;", "ptr++", "std::cout", "arr[i]"];
+                this.codeText = snippets[Math.floor(Math.random() * snippets.length)];
                 break;
         }
     }
@@ -1704,6 +1729,36 @@ class GameItem {
                 ctx.fillRect(this.x + 4, this.y + 6, 14, 4);
                 ctx.fillRect(this.x + 4, this.y + 12, 14, 4);
                 break;
+            case 'question':
+                // Speech bubble drawing
+                ctx.fillStyle = '#0f1015'; // Dark background
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                ctx.strokeStyle = '#ff007f'; // Neon pink warning border
+                ctx.lineWidth = 2;
+                ctx.strokeRect(this.x, this.y, this.width, this.height);
+                
+                // Exclamation dot on the left
+                ctx.fillStyle = '#ff007f';
+                ctx.fillRect(this.x + 6, this.y + 5, 4, 14);
+                
+                // Question Text
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '6px "Press Start 2P"';
+                ctx.fillText(this.questionText, this.x + 16, this.y + 16);
+                break;
+            case 'code':
+                // Code block snippet
+                ctx.fillStyle = '#1b2b20'; // Dark green coding background
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                ctx.strokeStyle = '#a3be8c'; // Green border
+                ctx.lineWidth = 1;
+                ctx.strokeRect(this.x, this.y, this.width, this.height);
+                
+                // Code Text
+                ctx.fillStyle = '#8fbcbb'; // Cyan code color
+                ctx.font = '6px "Press Start 2P"';
+                ctx.fillText(this.codeText, this.x + 8, this.y + 13);
+                break;
         }
 
         ctx.restore();
@@ -1757,28 +1812,38 @@ function spawnItems() {
         const rand = Math.random();
         let newItem;
         
-        if (rand < 0.45) {
-            // Spawning Obstacles
-            let obsType;
-            if (currentLevel === 2) {
-                // School / Classroom indoor obstacles (No cars or dogs!)
-                obsType = ['bench', 'podium', 'backpack', 'classmate', 'wetsign', 'sharma', 'bug'][Math.floor(Math.random() * 7)];
+        if (currentLevel === 3) {
+            // Level 3 Boss Fight: Spawn question projectiles (thrown from boss) and code collectibles
+            if (rand < 0.50) {
+                // Spawn question bubble thrown by the boss (starts at Boss X)
+                newItem = new GameItem('question', canvas.width - 120, 0, 1.4);
             } else {
-                // Street obstacles
-                obsType = ['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'trashcan'][Math.floor(Math.random() * 7)];
+                newItem = new GameItem('code', canvas.width + 50, 0);
             }
-            newItem = new GameItem(obsType, canvas.width + 50, 0);
-        } else if (rand < 0.85) {
-            // Spawning Collectibles
-            let colType;
-            if (currentLevel === 2) {
-                // Ensure commits are plentiful in Level 2!
-                colType = ['chai', 'sheet', 'commit', 'commit', 'magnet'][Math.floor(Math.random() * 5)];
-            } else {
-                colType = ['chai', 'sheet', 'commit', 'magnet'][Math.floor(Math.random() * 4)];
+        } else {
+            if (rand < 0.45) {
+                // Spawning Obstacles
+                let obsType;
+                if (currentLevel === 2) {
+                    // School / Classroom indoor obstacles (No cars or dogs!)
+                    obsType = ['bench', 'podium', 'backpack', 'classmate', 'wetsign', 'sharma', 'bug'][Math.floor(Math.random() * 7)];
+                } else {
+                    // Street obstacles
+                    obsType = ['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'trashcan'][Math.floor(Math.random() * 7)];
+                }
+                newItem = new GameItem(obsType, canvas.width + 50, 0);
+            } else if (rand < 0.85) {
+                // Spawning Collectibles
+                let colType;
+                if (currentLevel === 2) {
+                    // Ensure commits are plentiful in Level 2!
+                    colType = ['chai', 'sheet', 'commit', 'commit', 'magnet'][Math.floor(Math.random() * 5)];
+                } else {
+                    colType = ['chai', 'sheet', 'commit', 'magnet'][Math.floor(Math.random() * 4)];
+                }
+                const spawnY = player.groundY - 30 - Math.random() * 100; // Floating height
+                newItem = new GameItem(colType, canvas.width + 50, spawnY);
             }
-            const spawnY = player.groundY - 30 - Math.random() * 100; // Floating height
-            newItem = new GameItem(colType, canvas.width + 50, spawnY);
         }
         
         if (newItem) {
@@ -1932,7 +1997,7 @@ function handleCollisions() {
 
         if (checkCollision(pHbox, iHbox)) {
             // Collision occurred!
-            if (['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'bench', 'trashcan', 'podium', 'backpack', 'classmate', 'wetsign'].includes(item.type)) {
+            if (['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'bench', 'trashcan', 'podium', 'backpack', 'classmate', 'wetsign', 'question'].includes(item.type)) {
                 // Hitting Obstacle
                 if (invincibilityTimer > 0) {
                     // Destroy obstacle
@@ -1982,6 +2047,10 @@ function handleCollisions() {
                     // StackOverflow magnet
                     magnetTimer = 360; // 6 seconds
                     spawnCollectSparks(item.x + 10, item.y + 10, '#ff8f3b');
+                } else if (item.type === 'code') {
+                    // Code snippet gives 2 commits!
+                    commits += 2;
+                    spawnCollectSparks(item.x + 10, item.y + 10, '#8fbcbb');
                 }
                 updateHUD();
             }
@@ -1995,38 +2064,70 @@ function triggerWin() {
     if (pauseToggleBtn) pauseToggleBtn.style.display = 'none';
     
     // Save High Score
-    if (1000 > highScore) {
-        highScore = 1000;
+    const finalDist = Math.floor(distance);
+    if (finalDist > highScore) {
+        highScore = finalDist;
         localStorage.setItem('btech_high_score', highScore);
     }
 
     // Populate win panels
+    document.getElementById('win-distance').textContent = finalDist + 'm';
     document.getElementById('win-commits').textContent = commits;
     document.getElementById('win-attendance').textContent = attendance.toFixed(1) + '%';
 
     const celebrationEl = document.getElementById('win-celebration');
+    const winTitle = document.getElementById('win-title');
+    const winSubtitle = document.getElementById('win-subtitle');
+    const winMessage = document.getElementById('win-message');
+    const winRestartPrompt = document.getElementById('win-restart-prompt');
+    const nextBtn = document.getElementById('next-level-btn');
 
-    // Level 2 win: show special celebration popup
-    if (currentLevel === 2) {
-        document.getElementById('win-screen').classList.remove('hidden');
-        document.getElementById('win-title').textContent = 'GAME COMPLETE!';
-        document.getElementById('win-title').setAttribute('data-text', 'GAME COMPLETE!');
-        document.getElementById('win-subtitle').textContent = '🎉 You Did Great, Hero! 🎉';
-        document.getElementById('win-message').textContent = '"You made it to class! The Professor is incredibly proud. A+ in the DAA Viva! 🏆"';
-        document.getElementById('next-level-btn').style.display = 'none';
-        // Show the emoji celebration row with fireworks
+    // Clone button to strip previous event listeners cleanly
+    const newNextBtn = nextBtn.cloneNode(true);
+    nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+
+    if (currentLevel === 3) {
+        // Level 3 win: graduation grade card evaluation
+        let grade = 'A+';
+        if (attendance >= 90) grade = 'A+ (Topper)';
+        else if (attendance >= 75) grade = 'A (Good Standing)';
+        else if (attendance >= 60) grade = 'B (Passed)';
+        else grade = 'C (Borderline)';
+
+        winTitle.textContent = 'VIVA CLEARED!';
+        winTitle.setAttribute('data-text', 'VIVA CLEARED!');
+        winSubtitle.textContent = '🎓 GRADE: ' + grade + ' 🎓';
+        winMessage.textContent = '"Outstanding! You dodged every hard question. You are officially a B.Tech Graduate! Go get your degree! 🏆"';
+        newNextBtn.style.display = 'none';
         celebrationEl.classList.remove('hidden');
-        hudElement.classList.add('hidden');
-        return;
+        winRestartPrompt.textContent = 'PRESS SPACE TO PLAY AGAIN FROM START';
+    } else if (currentLevel === 2) {
+        // Level 2 win
+        winTitle.textContent = 'LEVEL 2 PASSED!';
+        winTitle.setAttribute('data-text', 'LEVEL 2 PASSED!');
+        winSubtitle.textContent = '🏃 Arrived at the classroom hall!';
+        winMessage.textContent = '"You reached the class door! But the Professor is sitting inside waiting for your Viva Exam. Get ready! 👨‍🏫"';
+        newNextBtn.style.display = 'block';
+        newNextBtn.textContent = '▶ START VIVA EXAM: THE BOSS FIGHT';
+        newNextBtn.addEventListener('click', () => {
+            startLevel3();
+        });
+        celebrationEl.classList.add('hidden');
+        winRestartPrompt.textContent = 'PRESS SPACE TO PLAY LEVEL 2 AGAIN';
+    } else {
+        // Level 1 win
+        winTitle.textContent = 'LEVEL 1 PASSED!';
+        winTitle.setAttribute('data-text', 'LEVEL 1 PASSED!');
+        winSubtitle.textContent = '🏃 Made it out of the streets!';
+        winMessage.textContent = '"Outstanding! Now run through the college campus corridor to reach the classroom!"';
+        newNextBtn.style.display = 'block';
+        newNextBtn.textContent = '▶ NEXT LEVEL: COLLEGE CAMPUS';
+        newNextBtn.addEventListener('click', () => {
+            startLevel2();
+        });
+        celebrationEl.classList.add('hidden');
+        winRestartPrompt.textContent = 'PRESS SPACE TO PLAY LEVEL 1 AGAIN';
     }
-
-    // Level 1 win: standard screen with Next Level button
-    document.getElementById('win-title').textContent = 'LEVEL 1 PASSED!';
-    document.getElementById('win-title').setAttribute('data-text', 'LEVEL 1 PASSED!');
-    document.getElementById('win-subtitle').textContent = '🏃 Made it out of the streets!';
-    document.getElementById('win-message').textContent = '"Outstanding! Now reach the classroom before the Professor marks you absent!"';
-    document.getElementById('next-level-btn').style.display = 'block';
-    celebrationEl.classList.add('hidden'); // Hide for level 1
 
     // Show win screen
     hudElement.classList.add('hidden');
@@ -2109,8 +2210,11 @@ function updateGame() {
     let boostExtra = boostTimer > 0 ? 5 : 0;
     gameSpeed = Math.min(maxSpeed, baseSpeed + (distance * 0.005)) + boostExtra;
 
-    // Win check — Level 1 ends at 1000m, Level 2 ends at 500m
-    const winDistance = currentLevel === 2 ? 500 : 1000;
+    // Win check — Level 1 ends at 1000m, Level 2 ends at 500m, Level 3 ends at 300m
+    let winDistance = 1000;
+    if (currentLevel === 2) winDistance = 500;
+    else if (currentLevel === 3) winDistance = 300;
+
     if (distance >= winDistance) {
         distance = winDistance;
         triggerWin();
@@ -2118,8 +2222,9 @@ function updateGame() {
     }
 
     // --- WhatsApp Notification Milestones ---
-    const milestoneTarget = currentLevel === 2 ? 250 : 500;
-    if (distance >= nextNotifAt && nextNotifAt <= milestoneTarget) {
+    // (Only triggers for Level 1 at 500m and Level 2 at 250m)
+    const milestoneTarget = currentLevel === 2 ? 250 : (currentLevel === 3 ? -1 : 500);
+    if (milestoneTarget !== -1 && distance >= nextNotifAt && nextNotifAt <= milestoneTarget) {
         triggerNotification(nextNotifAt);
         nextNotifAt += 1000; // prevent re-triggering
         return;
@@ -2311,40 +2416,80 @@ function drawClassroomFloor() {
 
 function drawGame() {
     // Clear canvas with base background color
-    ctx.fillStyle = currentLevel === 2 ? '#d8dee9' : '#7ac2f0';
+    ctx.fillStyle = (currentLevel === 2 || currentLevel === 3) ? '#d8dee9' : '#7ac2f0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (currentLevel === 2) {
-        // --- LEVEL 2 INDOOR BACKDROP RENDER ---
+    if (currentLevel === 2 || currentLevel === 3) {
+        // --- LEVEL 2 & 3 INDOOR BACKDROP RENDER ---
         ctx.save();
         ctx.imageSmoothingEnabled = false;
 
         const bgHeight = player.groundY + 10; // 270px
-        const bgScroll = (distance * 25) % canvas.width; // Smooth continuous scroll from right to left
+        
+        if (currentLevel === 3) {
+            // Level 3 is stationary/slowly scrolling classroom (viva room)
+            const bgScroll = (distance * 10) % canvas.width;
+            if (isClassroomLoaded) {
+                ctx.drawImage(classroomImage, -bgScroll, 0, canvas.width, bgHeight);
+                ctx.drawImage(classroomImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
+            }
 
-        if (distance < 450) {
-            // Corridor only
-            if (isCorridorLoaded) {
-                ctx.drawImage(corridorImage, -bgScroll, 0, canvas.width, bgHeight);
-                ctx.drawImage(corridorImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
-            }
-        } else if (distance >= 500) {
-            // Classroom only
-            if (isClassroomLoaded) {
-                ctx.drawImage(classroomImage, -bgScroll, 0, canvas.width, bgHeight);
-                ctx.drawImage(classroomImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
-            }
+            // Draw the Professor Boss floating on the right
+            const bossFloat = Math.sin(Date.now() / 250) * 8; // Float up and down
+            const bossX = canvas.width - 120;
+            const bossY = player.groundY - 15 + bossFloat;
+            
+            // Draw Professor body (similar to sharma drawing in GameItem.draw())
+            ctx.fillStyle = '#3f51b5'; // Blue Shirt
+            ctx.fillRect(bossX + 8, bossY + 15, 20, 25);
+            ctx.fillStyle = '#212121'; // Grey Pants
+            ctx.fillRect(bossX + 8, bossY + 40, 20, 30);
+            ctx.fillStyle = '#ffdbb5'; // Head
+            ctx.fillRect(bossX + 10, bossY, 16, 16);
+            ctx.fillStyle = '#5d4037'; // Hair
+            ctx.fillRect(bossX + 8, bossY, 20, 4);
+            ctx.fillStyle = '#fff'; // Specs
+            ctx.fillRect(bossX + 11, bossY + 5, 14, 3);
+            ctx.fillStyle = '#ff007f'; // Red tie
+            ctx.fillRect(bossX + 17, bossY + 15, 2, 12);
+            
+            // Draw a glow border
+            ctx.strokeStyle = 'rgba(255, 0, 127, 0.4)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(bossX + 4, bossY - 4, 28, 78);
+            
+            // Text label
+            ctx.fillStyle = '#ff007f';
+            ctx.font = '6px "Press Start 2P"';
+            ctx.fillText("THE EXAMINER", bossX - 10, bossY - 10);
         } else {
-            // Fade Transition (450m to 500m)
-            const ratio = (distance - 450) / 50;
-            if (isCorridorLoaded) {
-                ctx.drawImage(corridorImage, -bgScroll, 0, canvas.width, bgHeight);
-                ctx.drawImage(corridorImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
-            }
-            if (isClassroomLoaded) {
-                ctx.globalAlpha = ratio;
-                ctx.drawImage(classroomImage, -bgScroll, 0, canvas.width, bgHeight);
-                ctx.drawImage(classroomImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
+            // Level 2 scrolling corridor backdrop
+            const bgScroll = (distance * 25) % canvas.width;
+
+            if (distance < 450) {
+                // Corridor only
+                if (isCorridorLoaded) {
+                    ctx.drawImage(corridorImage, -bgScroll, 0, canvas.width, bgHeight);
+                    ctx.drawImage(corridorImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
+                }
+            } else if (distance >= 500) {
+                // Classroom only
+                if (isClassroomLoaded) {
+                    ctx.drawImage(classroomImage, -bgScroll, 0, canvas.width, bgHeight);
+                    ctx.drawImage(classroomImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
+                }
+            } else {
+                // Fade Transition (450m to 500m)
+                const ratio = (distance - 450) / 50;
+                if (isCorridorLoaded) {
+                    ctx.drawImage(corridorImage, -bgScroll, 0, canvas.width, bgHeight);
+                    ctx.drawImage(corridorImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
+                }
+                if (isClassroomLoaded) {
+                    ctx.globalAlpha = ratio;
+                    ctx.drawImage(classroomImage, -bgScroll, 0, canvas.width, bgHeight);
+                    ctx.drawImage(classroomImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
+                }
             }
         }
         ctx.restore();
@@ -2510,11 +2655,18 @@ function startLevel2() {
     hudElement.classList.remove('hidden');
     if (pauseToggleBtn) pauseToggleBtn.style.display = 'block';
     
-    // Change win screen title for Level 2
-    document.querySelector('#win-screen h2').setAttribute('data-text', 'GAME COMPLETE!');
-    document.querySelector('#win-screen h2').textContent = 'GAME COMPLETE!';
-    
     initGame(2);
+    synth.startBGM();
+}
+
+function startLevel3() {
+    gameState = 'PLAYING';
+    document.getElementById('win-screen').classList.add('hidden');
+    document.getElementById('notif-popup').classList.add('hidden');
+    hudElement.classList.remove('hidden');
+    if (pauseToggleBtn) pauseToggleBtn.style.display = 'block';
+    
+    initGame(3);
     synth.startBGM();
 }
 
@@ -2590,3 +2742,36 @@ pauseToggleBtn.addEventListener('click', (e) => {
 if (pauseToggleBtn) {
     pauseToggleBtn.style.display = 'none';
 }
+
+// --- Character Skin Toggle Logic & Initialization ---
+function updateSkinUI() {
+    if (!skinBtnStandard || !skinBtnPlaid) return;
+    if (selectedSkin === 'plaid') {
+        skinBtnPlaid.classList.add('active');
+        skinBtnStandard.classList.remove('active');
+    } else {
+        skinBtnStandard.classList.add('active');
+        skinBtnPlaid.classList.remove('active');
+    }
+}
+
+if (skinBtnStandard) {
+    skinBtnStandard.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectedSkin = 'standard';
+        localStorage.setItem('btech-skin', 'standard');
+        updateSkinUI();
+    });
+}
+
+if (skinBtnPlaid) {
+    skinBtnPlaid.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectedSkin = 'plaid';
+        localStorage.setItem('btech-skin', 'plaid');
+        updateSkinUI();
+    });
+}
+
+// Initialize skin on load
+updateSkinUI();

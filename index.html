@@ -58,6 +58,22 @@
             <div id="menu-screen" class="screen-overlay">
                 <h2 class="menu-title pulsating">PRESS SPACE TO START</h2>
                 <p class="menu-desc">You woke up at 8:45 AM! Your DAA Lab Viva starts at 9:00 AM. Run to college before the Professor debars you!</p>
+                
+                <!-- Character Skin Selector -->
+                <div class="skin-selector-container">
+                    <span class="skin-label">SELECT HERO:</span>
+                    <div class="skin-options">
+                        <div id="skin-btn-standard" class="skin-option-card active" data-skin="standard">
+                            <span class="skin-avatar">👤</span>
+                            <span class="skin-name">Standard</span>
+                        </div>
+                        <div id="skin-btn-plaid" class="skin-option-card" data-skin="plaid">
+                            <span class="skin-avatar">🕶️</span>
+                            <span class="skin-name">Plaid Shirt</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="controls-guide">
                     <div class="guide-item">
                         <span class="key">Space / Up / W</span>
@@ -109,7 +125,7 @@
                 <div class="gameover-stats">
                     <div class="stat-row">
                         <span>DISTANCE RUN:</span>
-                        <span class="neon-yellow">1000m (1.0 km)</span>
+                        <span id="win-distance" class="neon-yellow">0m</span>
                     </div>
                     <div class="stat-row">
                         <span>GITHUB COMMITS:</span>
@@ -120,8 +136,8 @@
                         <span id="win-attendance" class="neon-blue">0%</span>
                     </div>
                 </div>
-                <h3 class="pulsating restart-prompt">PRESS SPACE TO PLAY AGAIN</h3>
-                <button id="next-level-btn" class="next-level-button" onclick="startLevel2()">▶ NEXT LEVEL: COLLEGE CAMPUS</button>
+                <h3 id="win-restart-prompt" class="pulsating restart-prompt">PRESS SPACE TO PLAY AGAIN</h3>
+                <button id="next-level-btn" class="next-level-button">▶ NEXT LEVEL: COLLEGE CAMPUS</button>
             </div>
 
             <!-- Paused Screen -->
