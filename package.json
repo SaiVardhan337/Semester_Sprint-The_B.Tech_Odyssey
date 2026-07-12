@@ -1,0 +1,22 @@
+{
+  "name": "viva-or-void",
+  "version": "1.0.0",
+  "description": "A level-based 2D side-scrolling runner game built using HTML Canvas and Vanilla JavaScript",
+  "main": "game.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SaiVardhan337/viva-or-void.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SaiVardhan337/viva-or-void/issues"
+  },
+  "homepage": "https://github.com/SaiVardhan337/viva-or-void#readme",
+  "dependencies": {
+    "@vercel/speed-insights": "^1.0.12"
+  }
+}
