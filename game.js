@@ -90,7 +90,7 @@ corridorImage.onload = () => { isCorridorLoaded = true; };
 
 // Level 3 Classroom Lab Background Image
 const classroomLevel3Image = new Image();
-classroomLevel3Image.src = 'assets/classroom_level3.jpg';
+classroomLevel3Image.src = 'assets/classroom_level3.png';
 let isClassroomLevel3Loaded = false;
 classroomLevel3Image.onload = () => { isClassroomLevel3Loaded = true; };
 
