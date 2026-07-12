@@ -1173,34 +1173,30 @@ const player = {
         if (selectedSkin === 'crimson') activeChar = char3;
 
         if (activeChar && activeChar.loaded && activeChar.canvas) {
-            // Calculate dynamic slice size based on grid (6 columns)
-            const sliceW = activeChar.img.width / 6;
-            const sliceH = activeChar.img.height / activeChar.rows;
-            
-            let sliceX = 0;
-            let sliceY = 0;
-            
-            if (this.isJumping) {
-                sliceX = 0;
-                sliceY = sliceH; // Row 2 for jump
-            } else if (this.isSliding) {
-                sliceX = 0;
-                sliceY = sliceH * 2; // Row 3 for duck/slide
-            } else if (gameState === 'GAMEOVER') {
-                sliceX = sliceW * 2; // Arbitrary hurt frame
-                sliceY = sliceH;
-            } else {
-                sliceX = (this.animFrame % 4) * sliceW; // Row 1 (first 4 frames)
-                sliceY = 0;
+            // Draw the full single-pose character sprite
+            let scaleW = 60;
+            let scaleH = 80;
+            let renderY = this.y;
+
+            if (this.isSliding) {
+                // Squash for sliding/ducking
+                scaleW = 70;
+                scaleH = 45;
+                renderY = this.y + 35;
+            } else if (this.isJumping) {
+                // Slight stretch for jumping
+                scaleW = 55;
+                scaleH = 85;
             }
 
-            const scaleW = this.isSliding ? 75 : 60;
-            const scaleH = this.isSliding ? 50 : 80;
-            const renderY = this.isSliding ? this.y + 30 : this.y;
+            // Subtle running bob animation (2px vertical bounce)
+            if (!this.isJumping && !this.isSliding && gameState !== 'GAMEOVER') {
+                renderY += Math.sin(this.animFrame * 1.5) * 2;
+            }
 
             ctx.drawImage(
                 activeChar.canvas,
-                sliceX, sliceY, sliceW, sliceH,
+                0, 0, activeChar.img.width, activeChar.img.height,
                 this.x, renderY, scaleW, scaleH
             );
         } else {
@@ -2587,6 +2583,18 @@ function gameLoop() {
 }
 
 // --- Keyboard & Key State Handlers ---
+const SKIN_ORDER = ['plaid', 'varsity', 'crimson'];
+
+function cycleSkin(direction) {
+    const currentIndex = SKIN_ORDER.indexOf(selectedSkin);
+    let newIndex = currentIndex + direction;
+    if (newIndex < 0) newIndex = SKIN_ORDER.length - 1;
+    if (newIndex >= SKIN_ORDER.length) newIndex = 0;
+    selectedSkin = SKIN_ORDER[newIndex];
+    localStorage.setItem('btech-skin', selectedSkin);
+    updateSkinUI();
+}
+
 window.addEventListener('keydown', (e) => {
     if (e.repeat) return;
 
@@ -2620,6 +2628,20 @@ window.addEventListener('keydown', (e) => {
         e.preventDefault();
         if (gameState === 'PLAYING') {
             player.slide();
+        }
+    }
+
+    // Arrow Left/Right to cycle characters on menu screen
+    if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        if (gameState === 'MENU') {
+            cycleSkin(-1);
+        }
+    }
+    if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        if (gameState === 'MENU') {
+            cycleSkin(1);
         }
     }
 
