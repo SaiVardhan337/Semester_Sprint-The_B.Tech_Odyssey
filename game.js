@@ -29,11 +29,7 @@ const highScoreEl = document.getElementById('high-score');
 const pauseToggleBtn = document.getElementById('pause-toggle-btn');
 const themeToggleBtn = document.getElementById('theme-toggle-btn');
 
-// Skin Selector Selectors
-const skinBtnPlaid = document.getElementById('skin-btn-plaid');
-const skinBtnVarsity = document.getElementById('skin-btn-varsity');
-const skinBtnCrimson = document.getElementById('skin-btn-crimson');
-let selectedSkin = localStorage.getItem('btech-skin') || 'plaid';
+// (No character skin selection)
 
 // Game States
 let gameState = 'MENU'; // MENU, PLAYING, PLAYING_L2, GAMEOVER, PAUSED, WIN, WIN_L1, NOTIF
@@ -53,35 +49,59 @@ const baseSpeed = 5;
 const maxSpeed = 12;
 let groundOffset = 0; // Added for smooth pavement/road scrolling
 
-// New Generated Characters Setup
-const char1 = { img: new Image(), src: 'assets/char1.jpg', loaded: false, canvas: null, rows: 3 };
-const char2 = { img: new Image(), src: 'assets/char2.jpg', loaded: false, canvas: null, rows: 3 };
-const char3 = { img: new Image(), src: 'assets/char3.jpg', loaded: false, canvas: null, rows: 4 };
+// Vardhan Sprite coordinates on 1024x1024 canvas
+const SPRITE_MAP = {
+    run: [
+        { x: 6, y: 6, w: 242, h: 328 },
+        { x: 260, y: 6, w: 242, h: 328 },
+        { x: 514, y: 6, w: 242, h: 328 },
+        { x: 768, y: 6, w: 248, h: 328 }
+    ],
+    jump: { x: 528, y: 364, w: 180, h: 285 },
+    slide: { x: 575, y: 800, w: 280, h: 180 },
+    hurt: { x: 324, y: 408, w: 160, h: 260 }
+};
 
-function processCharCanvas(charObj) {
-    charObj.canvas = document.createElement('canvas');
-    charObj.canvas.width = charObj.img.width;
-    charObj.canvas.height = charObj.img.height;
-    const tempCtx = charObj.canvas.getContext('2d');
-    tempCtx.drawImage(charObj.img, 0, 0);
-    const imgData = tempCtx.getImageData(0, 0, charObj.img.width, charObj.img.height);
+// Character Spritesheet Setup (Varsity Jacket Hero)
+const spriteSheet = new Image();
+spriteSheet.src = 'assets/vardhan_spritesheet.jpg';
+let isSpriteSheetLoaded = false;
+let transparentSpriteCanvas = null;
+
+spriteSheet.onload = () => {
+    isSpriteSheetLoaded = true;
+    processSpriteSheet();
+};
+
+function processSpriteSheet() {
+    transparentSpriteCanvas = document.createElement('canvas');
+    transparentSpriteCanvas.width = spriteSheet.width;
+    transparentSpriteCanvas.height = spriteSheet.height;
+    const tempCtx = transparentSpriteCanvas.getContext('2d');
+    tempCtx.drawImage(spriteSheet, 0, 0);
+
+    const imgData = tempCtx.getImageData(0, 0, spriteSheet.width, spriteSheet.height);
     const data = imgData.data;
+
     for (let i = 0; i < data.length; i += 4) {
-        if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) {
-            data[i + 3] = 0; // Transparent
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        
+        // If it's near-white, make it transparent
+        if (r > 230 && g > 230 && b > 230) {
+            data[i + 3] = 0;
+        } else {
+            // Lighten skin tones to match fair skin tone requirement
+            if (r > 120 && g > 70 && b > 40 && r > g && g > b && r - b > 30 && r < 220) {
+                data[i]     = Math.min(255, r + 100);
+                data[i + 1] = Math.min(255, g + 90);
+                data[i + 2] = Math.min(255, b + 80);
+            }
         }
     }
     tempCtx.putImageData(imgData, 0, 0);
 }
-
-char1.img.onload = () => { char1.loaded = true; processCharCanvas(char1); };
-char1.img.src = char1.src;
-
-char2.img.onload = () => { char2.loaded = true; processCharCanvas(char2); };
-char2.img.src = char2.src;
-
-char3.img.onload = () => { char3.loaded = true; processCharCanvas(char3); };
-char3.img.src = char3.src;
 
 // Dog Sprite Setup (Light background transparency filter)
 const dogImage = new Image();
@@ -1167,36 +1187,29 @@ const player = {
             }
         }
 
-        let activeChar = null;
-        if (selectedSkin === 'plaid') activeChar = char1;
-        if (selectedSkin === 'varsity') activeChar = char2;
-        if (selectedSkin === 'crimson') activeChar = char3;
+        let activeCanvas = transparentSpriteCanvas;
+        let isActiveLoaded = isSpriteSheetLoaded;
 
-        if (activeChar && activeChar.loaded && activeChar.canvas) {
-            // Draw the full single-pose character sprite
-            let scaleW = 60;
-            let scaleH = 80;
-            let renderY = this.y;
+        if (isActiveLoaded && activeCanvas) {
+            // Render Vardhan using the spritesheet
+            let sourceRect = SPRITE_MAP.run[this.animFrame]; // Running
 
-            if (this.isSliding) {
-                // Squash for sliding/ducking
-                scaleW = 70;
-                scaleH = 45;
-                renderY = this.y + 35;
-            } else if (this.isJumping) {
-                // Slight stretch for jumping
-                scaleW = 55;
-                scaleH = 85;
+            if (this.isJumping) {
+                sourceRect = SPRITE_MAP.jump;
+            } else if (this.isSliding) {
+                sourceRect = SPRITE_MAP.slide;
+            } else if (gameState === 'GAMEOVER') {
+                sourceRect = SPRITE_MAP.hurt;
             }
 
-            // Subtle running bob animation (2px vertical bounce)
-            if (!this.isJumping && !this.isSliding && gameState !== 'GAMEOVER') {
-                renderY += Math.sin(this.animFrame * 1.5) * 2;
-            }
+            // Draw to canvas
+            const scaleW = this.isSliding ? 75 : 60;
+            const scaleH = this.isSliding ? 50 : 80;
+            const renderY = this.isSliding ? this.y + 30 : this.y;
 
             ctx.drawImage(
-                activeChar.canvas,
-                0, 0, activeChar.img.width, activeChar.img.height,
+                activeCanvas,
+                sourceRect.x, sourceRect.y, sourceRect.w, sourceRect.h,
                 this.x, renderY, scaleW, scaleH
             );
         } else {
@@ -2583,18 +2596,6 @@ function gameLoop() {
 }
 
 // --- Keyboard & Key State Handlers ---
-const SKIN_ORDER = ['plaid', 'varsity', 'crimson'];
-
-function cycleSkin(direction) {
-    const currentIndex = SKIN_ORDER.indexOf(selectedSkin);
-    let newIndex = currentIndex + direction;
-    if (newIndex < 0) newIndex = SKIN_ORDER.length - 1;
-    if (newIndex >= SKIN_ORDER.length) newIndex = 0;
-    selectedSkin = SKIN_ORDER[newIndex];
-    localStorage.setItem('btech-skin', selectedSkin);
-    updateSkinUI();
-}
-
 window.addEventListener('keydown', (e) => {
     if (e.repeat) return;
 
@@ -2628,20 +2629,6 @@ window.addEventListener('keydown', (e) => {
         e.preventDefault();
         if (gameState === 'PLAYING') {
             player.slide();
-        }
-    }
-
-    // Arrow Left/Right to cycle characters on menu screen
-    if (e.code === 'ArrowLeft') {
-        e.preventDefault();
-        if (gameState === 'MENU') {
-            cycleSkin(-1);
-        }
-    }
-    if (e.code === 'ArrowRight') {
-        e.preventDefault();
-        if (gameState === 'MENU') {
-            cycleSkin(1);
         }
     }
 
@@ -2813,45 +2800,7 @@ if (pauseToggleBtn) {
     pauseToggleBtn.style.display = 'none';
 }
 
-// --- Character Skin Toggle Logic & Initialization ---
-function updateSkinUI() {
-    if (skinBtnPlaid) skinBtnPlaid.classList.remove('active');
-    if (skinBtnVarsity) skinBtnVarsity.classList.remove('active');
-    if (skinBtnCrimson) skinBtnCrimson.classList.remove('active');
-
-    if (selectedSkin === 'plaid' && skinBtnPlaid) {
-        skinBtnPlaid.classList.add('active');
-    } else if (selectedSkin === 'varsity' && skinBtnVarsity) {
-        skinBtnVarsity.classList.add('active');
-    } else if (selectedSkin === 'crimson' && skinBtnCrimson) {
-        skinBtnCrimson.classList.add('active');
-    }
+// Initialize
+if (typeof updateSkinUI === 'function') {
+    updateSkinUI();
 }
-
-if (skinBtnPlaid) {
-    skinBtnPlaid.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectedSkin = 'plaid';
-        localStorage.setItem('btech-skin', 'plaid');
-        updateSkinUI();
-    });
-}
-if (skinBtnVarsity) {
-    skinBtnVarsity.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectedSkin = 'varsity';
-        localStorage.setItem('btech-skin', 'varsity');
-        updateSkinUI();
-    });
-}
-if (skinBtnCrimson) {
-    skinBtnCrimson.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectedSkin = 'crimson';
-        localStorage.setItem('btech-skin', 'crimson');
-        updateSkinUI();
-    });
-}
-
-// Initialize skin on load
-updateSkinUI();
