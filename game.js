@@ -2413,7 +2413,7 @@ function drawRoad() {
     } else if (currentLevel === 2 || currentLevel === 3) {
         // --- LEVEL 2 & 3: CORRIDOR / CLASSROOM FLOOR ---
         if (currentLevel === 3) {
-            drawClassroomFloor();
+            drawVivaRoomFloor();
         } else {
             if (distance < 450) {
                 drawCorridorFloor();
@@ -2518,6 +2518,44 @@ function drawClassroomFloor() {
     // Top baseboard trim
     ctx.fillStyle = '#4c566a';
     ctx.fillRect(0, floorY, canvas.width, 6);
+}
+
+function drawVivaRoomFloor() {
+    const floorY = player.groundY; // 260
+    const floorH = 140; // up to 400
+
+    // Light blue-green teal tile base (matches the classroom background)
+    ctx.fillStyle = '#b8e6d0';
+    ctx.fillRect(0, floorY, canvas.width, floorH);
+
+    // Checkerboard pattern with alternating lighter/darker teal
+    const tileSize = 30;
+    const cycle = groundOffset % (tileSize * 2);
+    for (let row = 0; row < Math.ceil(floorH / tileSize); row++) {
+        for (let col = -2; col < Math.ceil(canvas.width / tileSize) + 2; col++) {
+            const isLight = (row + col) % 2 === 0;
+            ctx.fillStyle = isLight ? '#c8f0de' : '#a0d8c0';
+            ctx.fillRect(col * tileSize - cycle, floorY + row * tileSize, tileSize, tileSize);
+        }
+    }
+
+    // Thin grout lines
+    ctx.strokeStyle = '#88c0a8';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    for (let y = floorY; y <= floorY + floorH; y += tileSize) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+    }
+    for (let x = -tileSize * 2; x < canvas.width + tileSize * 2; x += tileSize) {
+        ctx.moveTo(x - cycle, floorY);
+        ctx.lineTo(x - cycle, floorY + floorH);
+    }
+    ctx.stroke();
+
+    // Top baseboard trim (dark teal)
+    ctx.fillStyle = '#5a9a80';
+    ctx.fillRect(0, floorY, canvas.width, 4);
 }
 
 function drawGame() {
