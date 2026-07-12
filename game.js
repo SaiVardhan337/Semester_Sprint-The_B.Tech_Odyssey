@@ -658,7 +658,8 @@ class BackgroundLayer {
 const bgLayers = [
     // Layer 0: Sky, Sun and Clouds (Distant daylight / Moonlight night)
     new BackgroundLayer(0.05, (xOffset) => {
-        const isDark = document.body.classList.contains('dark-theme');
+        // Dark mode only affects UI, NOT in-game sky — sky is always daytime
+        const isDark = false;
         
         // Sky gradient
         const gradient = ctx.createLinearGradient(0, 0, 0, 250);
