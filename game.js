@@ -41,6 +41,8 @@ let distance = 0;
 let commits = 0;
 let collectiblesCount = 0;
 let attendance = 100; // Full attendance — starting fresh!
+let vivaProgress = 0;
+const distanceLabel = document.getElementById('distance-label');
 let highScore = parseInt(localStorage.getItem('btech_high_score') || '0', 10);
 let notifTimer = 0; // Countdown while notification is shown
 let notifMilestone = 0; // which 500m milestone triggered
@@ -86,6 +88,18 @@ corridorImage.src = 'assets/corridor.jpg';
 let isCorridorLoaded = false;
 corridorImage.onload = () => { isCorridorLoaded = true; };
 
+// Level 3 Classroom Lab Background Image
+const classroomLevel3Image = new Image();
+classroomLevel3Image.src = 'assets/classroom_level3.jpg';
+let isClassroomLevel3Loaded = false;
+classroomLevel3Image.onload = () => { isClassroomLevel3Loaded = true; };
+
+// Professor Boss Sprite Image
+const professorImage = new Image();
+professorImage.src = 'assets/professor.png';
+let isProfessorLoaded = false;
+let transparentProfessorCanvas = null;
+
 // Vardhan Sprite coordinates on 1024x1024 canvas
 const SPRITE_MAP = {
     run: [
@@ -118,6 +132,33 @@ cowImage.onload = () => {
     isCowImageLoaded = true;
     processCowImage();
 };
+
+professorImage.onload = () => {
+    isProfessorLoaded = true;
+    processProfessorImage();
+};
+
+function processProfessorImage() {
+    transparentProfessorCanvas = document.createElement('canvas');
+    transparentProfessorCanvas.width = professorImage.width;
+    transparentProfessorCanvas.height = professorImage.height;
+    const tempCtx = transparentProfessorCanvas.getContext('2d');
+    tempCtx.drawImage(professorImage, 0, 0);
+
+    const imgData = tempCtx.getImageData(0, 0, professorImage.width, professorImage.height);
+    const data = imgData.data;
+
+    // Filter white pixels (RGB close to 255)
+    for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        if (r > 240 && g > 240 && b > 240) {
+            data[i + 3] = 0;
+        }
+    }
+    tempCtx.putImageData(imgData, 0, 0);
+}
 
 function processDogImage() {
     transparentDogCanvas = document.createElement('canvas');
@@ -1167,10 +1208,15 @@ const player = {
         }
 
         // Animation ticking
-        this.animTick++;
-        if (this.animTick >= this.animSpeed) {
+        if (currentLevel === 3 && !this.isJumping && !this.isSliding) {
+            this.animFrame = 0;
             this.animTick = 0;
-            this.animFrame = (this.animFrame + 1) % 4; // 4 run frames
+        } else {
+            this.animTick++;
+            if (this.animTick >= this.animSpeed) {
+                this.animTick = 0;
+                this.animFrame = (this.animFrame + 1) % 4; // 4 run frames
+            }
         }
     },
 
@@ -1236,15 +1282,27 @@ const player = {
     }
 };
 
+// QA pairs dictionary for Level 3
+const VIVA_QA = [
+    { q: "Bubble Sort Worst Case?", a: "O(N^2)" },
+    { q: "Binary Search Time?", a: "O(log N)" },
+    { q: "LIFO Data Structure?", a: "Stack" },
+    { q: "FIFO Data Structure?", a: "Queue" },
+    { q: "HTML structure tag?", a: "div" },
+    { q: "CSS margin spacing?", a: "Margin" },
+    { q: "Local storage key?", a: "localStorage" }
+];
+
 // --- Obstacles & Collectibles Definition ---
 class GameItem {
-    constructor(type, x, y, speedMult = 1) {
-        this.type = type; // cow, dog, auto, sharma, bug, chai, sheet, commit, magnet
+    constructor(type, x, y, speedMult = 1, extra = null) {
+        this.type = type; // cow, dog, auto, sharma, bug, chai, sheet, commit, magnet, laser, answer
         this.x = x;
         this.y = y;
         this.width = 40;
         this.height = 40;
         this.speedMult = speedMult;
+        this.extra = extra;
         this.markedForDeletion = false;
         
         // Customize details
@@ -1351,20 +1409,22 @@ class GameItem {
                 this.height = 24;
                 this.y = player.groundY - 20;
                 break;
-            case 'question':
-                this.width = 100;
-                this.height = 24;
+            case 'laser':
+                this.width = 200;
+                this.height = 6;
                 this.isHigh = Math.random() < 0.5;
-                this.y = this.isHigh ? player.groundY - 45 : player.groundY + 15;
-                const questions = ["QuickSort?", "Dijkstra?", "P vs NP?", "Time Comp?", "Pointers?", "B-Tree?"];
-                this.questionText = questions[Math.floor(Math.random() * questions.length)];
+                this.y = this.isHigh ? player.groundY - 15 : player.groundY + 30;
+                
+                const qaIndex = Math.floor(Math.random() * VIVA_QA.length);
+                this.qaPair = VIVA_QA[qaIndex];
+                this.questionText = this.qaPair.q;
+                this.laserColor = this.isHigh ? '#ff0055' : '#00ffcc';
                 break;
-            case 'code':
-                this.width = 75;
-                this.height = 20;
-                this.y = player.groundY - 30 - Math.random() * 100;
-                const snippets = ["O(N log N)", "return 0;", "int x = 5;", "ptr++", "std::cout", "arr[i]"];
-                this.codeText = snippets[Math.floor(Math.random() * snippets.length)];
+            case 'answer':
+                this.width = 130;
+                this.height = 24;
+                this.y = player.groundY - 35 - Math.random() * 80;
+                this.answerText = this.extra || "O(1)";
                 break;
         }
     }
@@ -1382,6 +1442,9 @@ class GameItem {
     update() {
         // Move towards left
         let speed = gameSpeed * this.speedMult;
+        if (currentLevel === 3) {
+            speed = 5.5 * this.speedMult;
+        }
         
         // शर्मा सर walks back and forth
         if (this.type === 'sharma') {
@@ -1392,13 +1455,14 @@ class GameItem {
         }
         
         // Magnet pulling effect
-        if (magnetTimer > 0 && ['chai', 'sheet', 'commit', 'magnet'].includes(this.type)) {
+        if (magnetTimer > 0 && ['chai', 'sheet', 'commit', 'magnet', 'answer'].includes(this.type)) {
             const dx = player.x - this.x;
             const dy = player.y - this.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < 200) {
-                this.x += (dx / dist) * (gameSpeed + 4);
-                this.y += (dy / dist) * (gameSpeed + 4);
+                const pullSpeed = currentLevel === 3 ? 8 : (gameSpeed + 4);
+                this.x += (dx / dist) * pullSpeed;
+                this.y += (dy / dist) * pullSpeed;
             } else {
                 this.x -= speed;
             }
@@ -1406,7 +1470,14 @@ class GameItem {
             this.x -= speed;
         }
 
-        if (this.x < -this.width - 100) {
+        if (this.x < -this.width - 20) {
+            if (this.type === 'laser' && !this.markedForDeletion) {
+                vivaProgress++;
+                updateHUD();
+                if (vivaProgress >= 10) {
+                    triggerWin();
+                }
+            }
             this.markedForDeletion = true;
         }
 
@@ -1729,35 +1800,33 @@ class GameItem {
                 ctx.fillRect(this.x + 4, this.y + 6, 14, 4);
                 ctx.fillRect(this.x + 4, this.y + 12, 14, 4);
                 break;
-            case 'question':
-                // Speech bubble drawing
-                ctx.fillStyle = '#0f1015'; // Dark background
+            case 'laser':
+                ctx.save();
+                ctx.shadowColor = this.laserColor;
+                ctx.shadowBlur = 15;
+                ctx.fillStyle = this.laserColor;
                 ctx.fillRect(this.x, this.y, this.width, this.height);
-                ctx.strokeStyle = '#ff007f'; // Neon pink warning border
-                ctx.lineWidth = 2;
-                ctx.strokeRect(this.x, this.y, this.width, this.height);
                 
-                // Exclamation dot on the left
-                ctx.fillStyle = '#ff007f';
-                ctx.fillRect(this.x + 6, this.y + 5, 4, 14);
+                // Laser core white stripe
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(this.x, this.y + 1, this.width, this.height - 2);
+                ctx.restore();
                 
                 // Question Text
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '6px "Press Start 2P"';
-                ctx.fillText(this.questionText, this.x + 16, this.y + 16);
+                ctx.fillStyle = '#ff007f';
+                ctx.font = '5px "Press Start 2P"';
+                ctx.fillText(this.questionText, this.x + 10, this.y - 6);
                 break;
-            case 'code':
-                // Code block snippet
-                ctx.fillStyle = '#1b2b20'; // Dark green coding background
+            case 'answer':
+                ctx.fillStyle = '#1b2b20';
                 ctx.fillRect(this.x, this.y, this.width, this.height);
-                ctx.strokeStyle = '#a3be8c'; // Green border
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#a3be8c';
+                ctx.lineWidth = 1.5;
                 ctx.strokeRect(this.x, this.y, this.width, this.height);
                 
-                // Code Text
-                ctx.fillStyle = '#8fbcbb'; // Cyan code color
-                ctx.font = '6px "Press Start 2P"';
-                ctx.fillText(this.codeText, this.x + 8, this.y + 13);
+                ctx.fillStyle = '#8fbcbb';
+                ctx.font = '5px "Press Start 2P"';
+                ctx.fillText(this.answerText, this.x + 8, this.y + 15);
                 break;
         }
 
@@ -1813,13 +1882,22 @@ function spawnItems() {
         let newItem;
         
         if (currentLevel === 3) {
-            // Level 3 Boss Fight: Spawn question projectiles (thrown from boss) and code collectibles
-            if (rand < 0.50) {
-                // Spawn question bubble thrown by the boss (starts at Boss X)
-                newItem = new GameItem('question', canvas.width - 120, 0, 1.4);
-            } else {
-                newItem = new GameItem('code', canvas.width + 50, 0);
-            }
+            // Spawn paired laser question (from boss) and answer bubble (from right)
+            const qaIndex = Math.floor(Math.random() * VIVA_QA.length);
+            const pair = VIVA_QA[qaIndex];
+            
+            const laserItem = new GameItem('laser', canvas.width - 160, 0, 1.4);
+            laserItem.qaPair = pair;
+            laserItem.questionText = pair.q;
+            
+            const answerItem = new GameItem('answer', canvas.width + 50, 0, 1.1, pair.a);
+            
+            items.push(laserItem);
+            items.push(answerItem);
+            
+            // Random interval between boss attacks
+            itemSpawnTimer = 110 + Math.random() * 50;
+            return;
         } else {
             if (rand < 0.45) {
                 // Spawning Obstacles
@@ -1955,7 +2033,8 @@ function initGame(level = 1) {
     commits = 0;
     collectiblesCount = 0;
     attendance = 100; // Full 100% — fresh start!
-    gameSpeed = baseSpeed;
+    vivaProgress = 0;
+    gameSpeed = level === 3 ? 0 : baseSpeed;
     itemSpawnTimer = 30;
     invincibilityTimer = 0;
     magnetTimer = 0;
@@ -1970,7 +2049,13 @@ function initGame(level = 1) {
 
 function updateHUD() {
     commitsVal.textContent = commits;
-    distanceVal.textContent = Math.floor(distance) + 'm';
+    if (currentLevel === 3) {
+        if (distanceLabel) distanceLabel.textContent = 'VIVA PROG:';
+        distanceVal.textContent = vivaProgress + ' / 10';
+    } else {
+        if (distanceLabel) distanceLabel.textContent = 'DISTANCE:';
+        distanceVal.textContent = Math.floor(distance) + 'm';
+    }
     
     // Attendance updates
     const roundedAtt = attendance.toFixed(1);
@@ -1997,7 +2082,7 @@ function handleCollisions() {
 
         if (checkCollision(pHbox, iHbox)) {
             // Collision occurred!
-            if (['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'bench', 'trashcan', 'podium', 'backpack', 'classmate', 'wetsign', 'question'].includes(item.type)) {
+            if (['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'bench', 'trashcan', 'podium', 'backpack', 'classmate', 'wetsign', 'laser'].includes(item.type)) {
                 // Hitting Obstacle
                 if (invincibilityTimer > 0) {
                     // Destroy obstacle
@@ -2047,10 +2132,23 @@ function handleCollisions() {
                     // StackOverflow magnet
                     magnetTimer = 360; // 6 seconds
                     spawnCollectSparks(item.x + 10, item.y + 10, '#ff8f3b');
-                } else if (item.type === 'code') {
-                    // Code snippet gives 2 commits!
-                    commits += 2;
-                    spawnCollectSparks(item.x + 10, item.y + 10, '#8fbcbb');
+                } else if (item.type === 'answer') {
+                    // Answer bubble picked up! Recover 10% attendance and add 5 commits
+                    attendance = Math.min(100, attendance + 10.0);
+                    commits += 5;
+                    vivaProgress++;
+                    spawnCollectSparks(item.x + item.width/2, item.y + item.height/2, '#a3be8c');
+                    
+                    // Answering destroys the oldest active laser beam on screen!
+                    const activeLaser = items.find(it => it.type === 'laser' && !it.markedForDeletion);
+                    if (activeLaser) {
+                        activeLaser.markedForDeletion = true;
+                        spawnCollectSparks(activeLaser.x + activeLaser.width/2, activeLaser.y + activeLaser.height/2, '#00ffcc');
+                    }
+                    
+                    if (vivaProgress >= 10) {
+                        triggerWin();
+                    }
                 }
                 updateHUD();
             }
@@ -2071,7 +2169,11 @@ function triggerWin() {
     }
 
     // Populate win panels
-    document.getElementById('win-distance').textContent = finalDist + 'm';
+    if (currentLevel === 3) {
+        document.getElementById('win-distance').textContent = 'Defended: 10/10 Qs';
+    } else {
+        document.getElementById('win-distance').textContent = finalDist + 'm';
+    }
     document.getElementById('win-commits').textContent = commits;
     document.getElementById('win-attendance').textContent = attendance.toFixed(1) + '%';
 
@@ -2308,20 +2410,24 @@ function drawRoad() {
         for (let x = -dashW - gap; x < canvas.width + dashW; x += dashW + gap) {
             ctx.fillRect(x - roadCycle, player.groundY + 86, dashW, 4);
         }
-    } else if (currentLevel === 2) {
-        // --- LEVEL 2: CORRIDOR / CLASSROOM FLOOR ---
-        if (distance < 450) {
-            drawCorridorFloor();
-        } else if (distance >= 500) {
+    } else if (currentLevel === 2 || currentLevel === 3) {
+        // --- LEVEL 2 & 3: CORRIDOR / CLASSROOM FLOOR ---
+        if (currentLevel === 3) {
             drawClassroomFloor();
         } else {
-            // Transition: blend both floors
-            const ratio = (distance - 450) / 50;
-            ctx.save();
-            drawCorridorFloor();
-            ctx.globalAlpha = ratio;
-            drawClassroomFloor();
-            ctx.restore();
+            if (distance < 450) {
+                drawCorridorFloor();
+            } else if (distance >= 500) {
+                drawClassroomFloor();
+            } else {
+                // Transition: blend both floors
+                const ratio = (distance - 450) / 50;
+                ctx.save();
+                drawCorridorFloor();
+                ctx.globalAlpha = ratio;
+                drawClassroomFloor();
+                ctx.restore();
+            }
         }
     }
 }
@@ -2560,8 +2666,15 @@ window.addEventListener('keydown', (e) => {
         } else if (gameState === 'WIN') {
             if (currentLevel === 1) {
                 startLevel2();
+            } else if (currentLevel === 2) {
+                startLevel3();
             } else {
-                startGame();
+                // Restart from Level 1
+                initGame(1);
+                gameState = 'PLAYING';
+                document.getElementById('win-screen').classList.add('hidden');
+                hudElement.classList.remove('hidden');
+                synth.startBGM();
             }
         } else if (gameState === 'GAMEOVER') {
             restartGame();
