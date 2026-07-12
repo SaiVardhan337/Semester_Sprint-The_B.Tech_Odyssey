@@ -1244,18 +1244,18 @@ class GameItem {
     setupType() {
         switch (this.type) {
             case 'dog':
-                this.width = 52;
-                this.height = 42;
+                this.width = 72;
+                this.height = 58;
                 // Dog stands ON the pavement (groundY = 260; pavement from 260 to 300)
-                // Dog feet at 260+42=302, so y = 260-42+42 = 260
-                this.y = player.groundY + 18;
+                // Dog feet at 260+58=318, so y = 260-58+58 = 260
+                this.y = player.groundY + 2;
                 this.animFrame = 0;
                 break;
             case 'cow':
-                this.width = 68;
-                this.height = 58;
+                this.width = 90;
+                this.height = 76;
                 // Standing cow sits on pavement/road junction, bottom aligned at Y=320
-                this.y = player.groundY + 2;
+                this.y = player.groundY - 16;
                 break;
             case 'auto':
                 this.width = 72;
@@ -1898,7 +1898,7 @@ function initGame(level = 1) {
     groundOffset = 0;
     notifTimer = 0;
     notifMilestone = 0;
-    nextNotifAt = 500;
+    nextNotifAt = level === 2 ? 250 : 500;
 
     updateHUD();
 }
@@ -2033,11 +2033,11 @@ function triggerWin() {
     document.getElementById('win-screen').classList.remove('hidden');
 }
 
-// --- 500m Milestone WhatsApp Popup Notification ---
-// Level-aware notification messages (fires at 500m in both levels)
+// --- Milestone WhatsApp Popup Notification ---
+// Level-aware notification messages (fires at 500m in Level 1, 250m in Level 2)
 const NOTIF_MESSAGES = {
     L1_500: "bro where are you!! its college time!! viva starts at 9 am!! 😱",
-    L2_500: "bro you're almost inside the class!! run to your seat fast!! the Professor is HERE!! 🏃💨"
+    L2_250: "bro you're almost inside the class!! run to your seat fast!! the Professor is HERE!! 🏃💨"
 };
 
 function triggerNotification(milestone) {
@@ -2109,15 +2109,17 @@ function updateGame() {
     let boostExtra = boostTimer > 0 ? 5 : 0;
     gameSpeed = Math.min(maxSpeed, baseSpeed + (distance * 0.005)) + boostExtra;
 
-    // Win check — Level 1 ends at 1000m, Level 2 ends at 1000m
-    if (distance >= 1000) {
-        distance = 1000;
+    // Win check — Level 1 ends at 1000m, Level 2 ends at 500m
+    const winDistance = currentLevel === 2 ? 500 : 1000;
+    if (distance >= winDistance) {
+        distance = winDistance;
         triggerWin();
         return;
     }
 
-    // --- 500m WhatsApp Notification Milestones (one per level at 500m mark) ---
-    if (distance >= nextNotifAt && nextNotifAt <= 500) {
+    // --- WhatsApp Notification Milestones ---
+    const milestoneTarget = currentLevel === 2 ? 250 : 500;
+    if (distance >= nextNotifAt && nextNotifAt <= milestoneTarget) {
         triggerNotification(nextNotifAt);
         nextNotifAt += 1000; // prevent re-triggering
         return;
