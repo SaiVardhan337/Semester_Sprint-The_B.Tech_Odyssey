@@ -1,47 +1,109 @@
 # Viva or Void 🏃‍♂️🎓
 
-**Viva or Void** is a level-based 2D side-scrolling runner game built using HTML Canvas and Vanilla JavaScript. Embark on the frantic morning commute of a B.Tech student running late for their crucial DAA Viva exam! Avoid local street obstacles and classroom hallway hurdles, keep your attendance at 100%, and make it to the classroom before the Professor locks the door.
+[![HTML5 Canvas](https://img.shields.io/badge/Engine-HTML5%20Canvas-orange.svg?style=for-the-badge&logo=html5)](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
+[![Vanilla JS](https://img.shields.io/badge/Code-Vanilla%20JS-yellow.svg?style=for-the-badge&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Web Audio API](https://img.shields.io/badge/Audio-Web%20Audio%20API-blue.svg?style=for-the-badge&logo=webassembly)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+**Viva or Void** is a level-based 2D side-scrolling retro runner game built entirely using **HTML Canvas**, **Vanilla JavaScript**, and **CSS3**. The game follows the morning commute of a B.Tech student running late for a crucial DAA (Design and Analysis of Algorithms) Viva exam. 
+
+The player must navigate complex streets, dodge campus hazards, maintain a passing attendance rate, and face the ultimate boss: the Examiner, in a real-time classroom Viva Q&A showdown.
 
 ---
 
 ## 🕹️ Play Now
-Run the game locally by cloning this repository and opening `index.html` in your browser, or host it on Vercel/GitHub Pages!
+Clone the repository and open `index.html` directly in any browser, or host it statically (GitHub Pages, Vercel, Netlify). 
 
 ---
 
 ## 🎮 Game Controls
-* **SPACEBAR** or **UP ARROW**: Jump over obstacles / Double Jump in mid-air
-* **M**: Mute/Unmute chaotic-peaceful chiptune audio
+| Key | Action | Context |
+| :--- | :--- | :--- |
+| **Spacebar** / **W** / **↑** | Jump (Double Jump supported) | In-Game |
+| **S** / **↓** | Slide / Duck | In-Game |
+| **M** | Toggle Mute | Anywhere |
+| **Escape** | Pause / Resume | In-Game |
+| **Spacebar** | Select/Confirm/Start | Menus |
 
 ---
 
-## ✨ Key Features
-* **Dual Level Progression:** 
-  * **Level 1 (The Streets):** Dodge cows, dogs, auto-rickshaws, and potholes through a vibrant parallax town.
-  * **Level 2 (The Corridor):** Outrun class benches, bugs, and other students inside the college hallway.
-* **Attendance System:** Your attendance starts at 100% and decays over time (1% every 10 seconds). Collect **Attendance Sheets** to bump it back up. Hitting obstacles results in a heavy penalty!
-* **10s Boost Mechanics:** Collect **Chai** or any special collectible. Collect 5 items to trigger a 3-second invincibility and speed boost to zoom past hurdles.
-* **Milestone Popups:** Receive urgent pause-screen WhatsApp notifications from your friend at the 500m mark warning you that Viva is starting!
-* **Sound Effects & Music:** Dynamic 8-bit synthetic audio track with interactive jump, crash, and collectible sound effects.
-* **Responsive Visuals:** Features custom retro pixel art, parallax scrolling background layers, dynamic cloud/bird spawning, and smooth player sprite animations.
+## 🏗️ Technical Architecture
+The game relies on a clean, single-threaded model centered around a deterministic game loop driven by `requestAnimationFrame`.
+
+```mermaid
+graph TD
+    A[Browser Window] -->|Inputs: Keydown/Touch| B(Game Engine)
+    B --> C{Game Loop: requestAnimationFrame}
+    C --> D[Update Phase]
+    C --> E[Render Phase]
+    D --> D1[Player Physics: gravity, jumping, sliding]
+    D --> D2[Obstacles & Collectibles: spawn, update positions]
+    D --> D3[Collision Detection: AABB overlaps]
+    D --> D4[Game State Transitions: distance checks, attendance decay]
+    E --> E1[Draw Static/Scrolling Backgrounds]
+    E --> E2[Draw Active Entities: Player, Obstacles, Particles]
+    E --> E3[Draw HUD: Attendance, Commits, Score]
+    D3 -->|Collision/Event| F[Audio Engine: Web Audio API Synth]
+    F -->|Play programmatically generated sounds| G[Audio Output]
+```
 
 ---
 
-## 🛠️ Project Structure
-* `index.html` - The structural stage containing the 2D Canvas element.
-* `style.css` - Classic arcade fonts, styling, layout styling, and animations.
-* `game.js` - The engine containing the game loop, AABB physics, collision logic, layer offsets, and custom audio synthesizers.
-* `/assets` - Visual sprite assets (custom running cycle sprite sheets) and backdrop images.
+## 🚀 Key Engineering Highlights
+
+### 1. Programmatic 8-Bit Synth (Web Audio API)
+Instead of loading external heavy `.mp3` or `.wav` assets, all game audio (chiptune background music, jump sound effects, collision feedback, collection jingles) is generated **programmatically at runtime** using the Web Audio API:
+* **Chiptune sequencer**: Plays custom 32-step chord progressions.
+* **Low footprint**: Reduces repository size and load times to practically zero.
+* **Custom Oscillators**: Utilizes square, triangle, and sine waveforms to replicate classic NES sound chips.
+
+### 2. AABB Collision Detection with Safe Padding
+A custom Axis-Aligned Bounding Box (AABB) system computes precise overlap bounds. It includes custom hit-box padding for player-friendly collision boxes, preventing frustrating near-miss crashes:
+```javascript
+getHitbox() {
+    return {
+        x: this.x + 4,
+        y: this.y + 4,
+        w: this.width - 8,
+        h: this.height - 8
+    };
+}
+```
+
+### 3. Real-Time Canvas Pixel Manipulation
+To integrate pixel art assets cleanly, the engine analyzes and filters sprite images dynamically on load:
+* **Background removal**: Detects near-white background colors (RGB > 230) and sets their alpha values to 0.
+* **Skin-tone adjustments**: Uses custom pixel-color ranges to programmatically lighten skin tones of retro game characters.
+
+### 4. Adaptive Game Loop & Progression
+* **Parallax Scrolling**: Background layers scroll at different speeds based on player distance to give a three-dimensional depth effect.
+* **Dynamic Speed Curve**: Speed scales up asymptotically as the player runs further.
+* **Milestone Alerts**: Spawns mock WhatsApp popups at key milestones, pausing the action to simulate phone notifications.
 
 ---
 
-## 🚀 How to Run Locally
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/btech-runner.git
-   ```
-2. Navigate into the directory and open `index.html` directly in any web browser, or start a local server:
-   ```bash
-   python3 -m http.server 8000
-   ```
-3. Open `http://localhost:8000/` in your browser.
+## 📖 Level System & Design
+
+| Level | Backdrop | Main Obstacles | Win Condition | Gameplay Style |
+| :--- | :--- | :--- | :--- | :--- |
+| **Level 1** | Parallax City Streets | Stray Dogs, Cows, Rickshaws, Potholes | Run 1000 meters | Standard runner |
+| **Level 2** | College Campus Corridor | Backpacks, Benches, Wet Signs, Classmates | Run 250 meters | fast-paced dodging |
+| **Level 3** | Computer Lab Classroom | Laser Question Beams, Answer Bubbles | Answer 5 questions | Stationary Boss Fight |
+
+---
+
+## 🛠️ How to Run Locally
+
+### Option A: Open directly
+Open `index.html` in your web browser of choice.
+
+### Option B: Local Web Server (Recommended)
+Starting a simple HTTP server ensures correct origin policies for canvas pixel manipulation:
+```bash
+# Python 3
+python3 -m http.server 8000
+
+# Node.js (via http-server)
+npx http-server . -p 8000
+```
+Open `http://localhost:8000` in your browser.
