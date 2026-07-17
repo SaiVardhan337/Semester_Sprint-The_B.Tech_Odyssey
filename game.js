@@ -122,7 +122,7 @@ campusGreeneryBgImage.onload = () => { isCampusGreeneryBgLoaded = true; };
 
 // Level 4 Peer Blocker Image
 const peerImage = new Image();
-peerImage.src = 'assets/peer.jpg';
+peerImage.src = 'assets/peer.png';
 let isPeerLoaded = false;
 let transparentPeerCanvas = null;
 peerImage.onload = () => {
@@ -132,7 +132,7 @@ peerImage.onload = () => {
 
 // Level 4 Security Guard Image
 const securityImage = new Image();
-securityImage.src = 'assets/security.jpg';
+securityImage.src = 'assets/security.png';
 let isSecurityLoaded = false;
 let transparentSecurityCanvas = null;
 securityImage.onload = () => {
