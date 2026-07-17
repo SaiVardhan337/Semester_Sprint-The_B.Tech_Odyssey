@@ -2901,6 +2901,7 @@ window.addEventListener('keydown', (e) => {
                 gameState = 'PLAYING';
                 document.getElementById('win-screen').classList.add('hidden');
                 hudElement.classList.remove('hidden');
+                if (pauseToggleBtn) pauseToggleBtn.style.display = 'block';
                 synth.startBGM();
             } else {
                 // Restart from Level 1
@@ -2908,6 +2909,7 @@ window.addEventListener('keydown', (e) => {
                 gameState = 'PLAYING';
                 document.getElementById('win-screen').classList.add('hidden');
                 hudElement.classList.remove('hidden');
+                if (pauseToggleBtn) pauseToggleBtn.style.display = 'block';
                 synth.startBGM();
             }
         } else if (gameState === 'GAMEOVER') {
