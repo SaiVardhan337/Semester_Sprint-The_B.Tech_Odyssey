@@ -16,6 +16,8 @@ const hudElement = document.getElementById('hud');
 const attendanceFill = document.getElementById('attendance-fill');
 const commitsVal = document.getElementById('commits-val');
 const distanceVal = document.getElementById('distance-val');
+const attendanceLabelEl = document.querySelector('.attendance-container .hud-label');
+const commitsLabelEl = document.querySelector('.hud-stats .hud-item .hud-label');
 
 // Screens
 const menuScreen = document.getElementById('menu-screen');
@@ -29,7 +31,10 @@ const highScoreEl = document.getElementById('high-score');
 const pauseToggleBtn = document.getElementById('pause-toggle-btn');
 const themeToggleBtn = document.getElementById('theme-toggle-btn');
 
-// (No character skin selection)
+// Campaign Selector Selectors
+const campaignBtnCommute = document.getElementById('campaign-btn-commute');
+const campaignBtnPlacement = document.getElementById('campaign-btn-placement');
+let selectedCampaign = localStorage.getItem('btech-campaign') || 'commute';
 
 // Game States
 let gameState = 'MENU'; // MENU, PLAYING, PLAYING_L2, GAMEOVER, PAUSED, WIN, WIN_L1, NOTIF
@@ -99,6 +104,108 @@ function processSpriteSheet() {
                 data[i + 2] = Math.min(255, b + 80);
             }
         }
+    }
+    tempCtx.putImageData(imgData, 0, 0);
+}
+
+// Level 4 Gardens Background Image
+const gardensBgImage = new Image();
+gardensBgImage.src = 'assets/gardens_bg.jpg';
+let isGardensBgLoaded = false;
+gardensBgImage.onload = () => { isGardensBgLoaded = true; };
+
+// Level 4 Peer Blocker Image
+const peerImage = new Image();
+peerImage.src = 'assets/peer.jpg';
+let isPeerLoaded = false;
+let transparentPeerCanvas = null;
+peerImage.onload = () => {
+    isPeerLoaded = true;
+    processPeerImage();
+};
+
+// Level 4 Security Guard Image
+const securityImage = new Image();
+securityImage.src = 'assets/security.jpg';
+let isSecurityLoaded = false;
+let transparentSecurityCanvas = null;
+securityImage.onload = () => {
+    isSecurityLoaded = true;
+    processSecurityImage();
+};
+
+// Level 4 Resume Collectible Image
+const resumeImage = new Image();
+resumeImage.src = 'assets/resume.jpg';
+let isResumeLoaded = false;
+let transparentResumeCanvas = null;
+resumeImage.onload = () => {
+    isResumeLoaded = true;
+    processResumeImage();
+};
+
+// Level 4 Flyer Obstacle Image
+const flyerImage = new Image();
+flyerImage.src = 'assets/placement_flyer.jpg';
+let isFlyerLoaded = false;
+let transparentFlyerCanvas = null;
+flyerImage.onload = () => {
+    isFlyerLoaded = true;
+    processFlyerImage();
+};
+
+function processPeerImage() {
+    transparentPeerCanvas = document.createElement('canvas');
+    transparentPeerCanvas.width = peerImage.width;
+    transparentPeerCanvas.height = peerImage.height;
+    const tempCtx = transparentPeerCanvas.getContext('2d');
+    tempCtx.drawImage(peerImage, 0, 0);
+    const imgData = tempCtx.getImageData(0, 0, peerImage.width, peerImage.height);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+        if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+    }
+    tempCtx.putImageData(imgData, 0, 0);
+}
+
+function processSecurityImage() {
+    transparentSecurityCanvas = document.createElement('canvas');
+    transparentSecurityCanvas.width = securityImage.width;
+    transparentSecurityCanvas.height = securityImage.height;
+    const tempCtx = transparentSecurityCanvas.getContext('2d');
+    tempCtx.drawImage(securityImage, 0, 0);
+    const imgData = tempCtx.getImageData(0, 0, securityImage.width, securityImage.height);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+        if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+    }
+    tempCtx.putImageData(imgData, 0, 0);
+}
+
+function processResumeImage() {
+    transparentResumeCanvas = document.createElement('canvas');
+    transparentResumeCanvas.width = resumeImage.width;
+    transparentResumeCanvas.height = resumeImage.height;
+    const tempCtx = transparentResumeCanvas.getContext('2d');
+    tempCtx.drawImage(resumeImage, 0, 0);
+    const imgData = tempCtx.getImageData(0, 0, resumeImage.width, resumeImage.height);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+        if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+    }
+    tempCtx.putImageData(imgData, 0, 0);
+}
+
+function processFlyerImage() {
+    transparentFlyerCanvas = document.createElement('canvas');
+    transparentFlyerCanvas.width = flyerImage.width;
+    transparentFlyerCanvas.height = flyerImage.height;
+    const tempCtx = transparentFlyerCanvas.getContext('2d');
+    tempCtx.drawImage(flyerImage, 0, 0);
+    const imgData = tempCtx.getImageData(0, 0, flyerImage.width, flyerImage.height);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+        if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
     }
     tempCtx.putImageData(imgData, 0, 0);
 }
@@ -1301,6 +1408,26 @@ class GameItem {
                 this.height = 60;
                 this.y = player.groundY; // stands on pavement/floor
                 break;
+            case 'peer':
+                this.width = 32;
+                this.height = 70;
+                this.y = player.groundY - 10;
+                break;
+            case 'security':
+                this.width = 40;
+                this.height = 72;
+                this.y = player.groundY - 12;
+                break;
+            case 'placement_flyer':
+                this.width = 30;
+                this.height = 30;
+                this.y = player.groundY - 60 - Math.random() * 40;
+                break;
+            case 'resume':
+                this.width = 24;
+                this.height = 28;
+                this.y = player.groundY - 24;
+                break;
             case 'backpack':
                 this.width = 34;
                 this.height = 34;
@@ -1612,6 +1739,42 @@ class GameItem {
                 ctx.fillRect(this.x + 14, this.y + 26, 2, 2);
                 break;
 
+            case 'peer':
+                if (isPeerLoaded && transparentPeerCanvas) {
+                    ctx.drawImage(transparentPeerCanvas, this.x, this.y, this.width, this.height);
+                } else {
+                    ctx.fillStyle = '#ff8a80';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                }
+                break;
+
+            case 'security':
+                if (isSecurityLoaded && transparentSecurityCanvas) {
+                    ctx.drawImage(transparentSecurityCanvas, this.x, this.y, this.width, this.height);
+                } else {
+                    ctx.fillStyle = '#90a4ae';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                }
+                break;
+
+            case 'placement_flyer':
+                if (isFlyerLoaded && transparentFlyerCanvas) {
+                    ctx.drawImage(transparentFlyerCanvas, this.x, this.y, this.width, this.height);
+                } else {
+                    ctx.fillStyle = '#ff1744';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                }
+                break;
+
+            case 'resume':
+                if (isResumeLoaded && transparentResumeCanvas) {
+                    ctx.drawImage(transparentResumeCanvas, this.x, this.y, this.width, this.height);
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                }
+                break;
+
             case 'sharma':
                 // Sharma Sir: Angry external Examiner
                 ctx.fillStyle = '#3f51b5'; // Blue Shirt
@@ -1843,7 +2006,9 @@ function spawnItems() {
             if (rand < 0.45) {
                 // Spawning Obstacles
                 let obsType;
-                if (currentLevel === 2) {
+                if (currentLevel === 4) {
+                    obsType = ['peer', 'security', 'placement_flyer'][Math.floor(Math.random() * 3)];
+                } else if (currentLevel === 2) {
                     // School / Classroom indoor obstacles (No cars or dogs!)
                     obsType = ['bench', 'podium', 'backpack', 'classmate', 'wetsign', 'sharma', 'bug'][Math.floor(Math.random() * 7)];
                 } else {
@@ -1854,7 +2019,9 @@ function spawnItems() {
             } else if (rand < 0.85) {
                 // Spawning Collectibles
                 let colType;
-                if (currentLevel === 2) {
+                if (currentLevel === 4) {
+                    colType = ['chai', 'resume', 'commit', 'magnet'][Math.floor(Math.random() * 4)];
+                } else if (currentLevel === 2) {
                     // Ensure commits are plentiful in Level 2!
                     colType = ['chai', 'sheet', 'commit', 'commit', 'magnet'][Math.floor(Math.random() * 5)];
                 } else {
@@ -1998,6 +2165,15 @@ function updateHUD() {
         distanceVal.textContent = Math.floor(distance) + 'm';
     }
     
+    // Update labels for Campaign 2
+    if (currentLevel >= 4) {
+        if (attendanceLabelEl) attendanceLabelEl.textContent = 'PROFILE STRENGTH:';
+        if (commitsLabelEl) commitsLabelEl.textContent = 'NETWORKING:';
+    } else {
+        if (attendanceLabelEl) attendanceLabelEl.textContent = 'ATTENDANCE:';
+        if (commitsLabelEl) commitsLabelEl.textContent = 'COMMITS:';
+    }
+    
     // Attendance updates
     const roundedAtt = attendance.toFixed(1);
     attendanceFill.textContent = roundedAtt + '%';
@@ -2023,7 +2199,7 @@ function handleCollisions() {
 
         if (checkCollision(pHbox, iHbox)) {
             // Collision occurred!
-            if (['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'bench', 'trashcan', 'podium', 'backpack', 'classmate', 'wetsign', 'laser'].includes(item.type)) {
+            if (['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'bench', 'trashcan', 'podium', 'backpack', 'classmate', 'wetsign', 'laser', 'peer', 'security', 'placement_flyer'].includes(item.type)) {
                 // Hitting Obstacle
                 if (invincibilityTimer > 0) {
                     // Destroy obstacle
@@ -2061,8 +2237,8 @@ function handleCollisions() {
                     // Chai original power: 5s invincibility
                     invincibilityTimer = Math.max(invincibilityTimer, 300);
                     spawnCollectSparks(item.x + 10, item.y + 10, '#fff000');
-                } else if (item.type === 'sheet') {
-                    // Att sheet boost
+                } else if (item.type === 'sheet' || item.type === 'resume') {
+                    // Att sheet / Resume boost
                     attendance = Math.min(100, attendance + 3.0);
                     spawnCollectSparks(item.x + 10, item.y + 10, '#39ff14');
                 } else if (item.type === 'commit') {
@@ -2144,6 +2320,24 @@ function triggerWin() {
         newNextBtn.style.display = 'none';
         celebrationEl.classList.remove('hidden');
         winRestartPrompt.textContent = 'PRESS SPACE TO PLAY AGAIN FROM START';
+    } else if (currentLevel === 4) {
+        // Level 4 win
+        winTitle.textContent = 'LEVEL 4 PASSED!';
+        winTitle.setAttribute('data-text', 'LEVEL 4 PASSED!');
+        winSubtitle.textContent = '🏃 Reached the placement cell!';
+        winMessage.textContent = '"Excellent run! You made it to the interview center. Next up: navigate the corporate hallway!"';
+        newNextBtn.style.display = 'block';
+        newNextBtn.textContent = '▶ NEXT LEVEL: CORPORATE HALLWAY';
+        newNextBtn.addEventListener('click', () => {
+            alert("Great job! Level 5 (Corporate Hallway) is coming soon in the Part 2 release.");
+            // Go back to main menu
+            gameState = 'MENU';
+            document.getElementById('win-screen').classList.add('hidden');
+            menuScreen.classList.remove('hidden');
+            if (pauseToggleBtn) pauseToggleBtn.style.display = 'none';
+        });
+        celebrationEl.classList.add('hidden');
+        winRestartPrompt.textContent = 'PRESS SPACE TO PLAY LEVEL 4 AGAIN';
     } else if (currentLevel === 2) {
         // Level 2 win
         winTitle.textContent = 'LEVEL 2 PASSED!';
@@ -2181,7 +2375,8 @@ function triggerWin() {
 // Level-aware notification messages (fires at 500m in Level 1, 250m in Level 2)
 const NOTIF_MESSAGES = {
     L1_500: "bro where are you!! its college time!! viva starts at 9 am!! 😱",
-    L2_250: "bro you're almost inside the class!! run to your seat fast!! the Professor is HERE!! 🏃💨"
+    L2_250: "bro you're almost inside the class!! run to your seat fast!! the Professor is HERE!! 🏃💨",
+    L4_500: "bro where are you!! the YOLO Tech interviews have started at the Seminar Hall!! 😱"
 };
 
 function triggerNotification(milestone) {
@@ -2259,10 +2454,11 @@ function updateGame() {
         gameSpeed = Math.min(maxSpeed, baseSpeed + (distance * 0.005)) + boostExtra;
     }
 
-    // Win check — Level 1 ends at 1000m, Level 2 ends at 250m, Level 3 ends at 300m
+    // Win check — Level 1 ends at 1000m, Level 2 ends at 250m, Level 3 ends at 300m, Level 4 ends at 1000m
     let winDistance = 1000;
     if (currentLevel === 2) winDistance = 250;
     else if (currentLevel === 3) winDistance = 300;
+    else if (currentLevel === 4) winDistance = 1000;
 
     if (distance >= winDistance) {
         distance = winDistance;
@@ -2273,7 +2469,7 @@ function updateGame() {
     // --- WhatsApp Notification Milestones ---
     // (Only triggers for Level 1 at 500m and Level 2 at 250m)
     const milestoneTarget = currentLevel === 2 ? 250 : (currentLevel === 3 ? -1 : 500);
-    if (milestoneTarget !== -1 && distance >= nextNotifAt && nextNotifAt <= milestoneTarget) {
+    if (milestoneTarget !== -1 && distance >= nextNotifAt && nextNotifAt <= milestoneTarget && currentLevel !== 4) {
         triggerNotification(nextNotifAt);
         nextNotifAt += 1000; // prevent re-triggering
         return;
@@ -2357,9 +2553,11 @@ function drawRoad() {
         for (let x = -dashW - gap; x < canvas.width + dashW; x += dashW + gap) {
             ctx.fillRect(x - roadCycle, player.groundY + 86, dashW, 4);
         }
-    } else if (currentLevel === 2 || currentLevel === 3) {
-        // --- LEVEL 2 & 3: CORRIDOR / CLASSROOM FLOOR ---
-        if (currentLevel === 3) {
+    } else if (currentLevel === 2 || currentLevel === 3 || currentLevel === 4) {
+        // --- LEVEL 2, 3 & 4 FLOOR ---
+        if (currentLevel === 4) {
+            drawGardensFloor();
+        } else if (currentLevel === 3) {
             drawVivaRoomFloor();
         } else {
             drawCorridorFloor();
@@ -2455,6 +2653,36 @@ function drawClassroomFloor() {
     ctx.fillRect(0, floorY, canvas.width, 6);
 }
 
+function drawGardensFloor() {
+    const floorY = player.groundY; // 260
+    const floorH = 140; // up to 400
+
+    // Green grass base
+    ctx.fillStyle = '#4caf50';
+    ctx.fillRect(0, floorY, canvas.width, floorH);
+
+    // Stone pathway tiles (scrolling)
+    const stoneW = 60;
+    const stoneH = 30;
+    const cycle = groundOffset % (stoneW * 2);
+
+    for (let row = 0; row < Math.ceil(floorH / stoneH); row++) {
+        for (let col = -2; col < Math.ceil(canvas.width / stoneW) + 2; col++) {
+            const isStone = (row + col) % 2 === 0;
+            if (isStone) {
+                ctx.fillStyle = '#90a4ae'; // darker grey
+                ctx.fillRect(col * stoneW - cycle, floorY + row * stoneH, stoneW - 6, stoneH - 6);
+                ctx.fillStyle = '#b0bec5'; // light grey highlight
+                ctx.fillRect(col * stoneW - cycle + 2, floorY + row * stoneH + 2, stoneW - 10, stoneH - 10);
+            }
+        }
+    }
+
+    // Top trim grass line (darker green)
+    ctx.fillStyle = '#2e7d32';
+    ctx.fillRect(0, floorY, canvas.width, 6);
+}
+
 function drawVivaRoomFloor() {
     const floorY = player.groundY; // 260
     const floorH = 140; // up to 400
@@ -2498,14 +2726,24 @@ function drawGame() {
     ctx.fillStyle = (currentLevel === 2 || currentLevel === 3) ? '#d8dee9' : '#7ac2f0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (currentLevel === 2 || currentLevel === 3) {
-        // --- LEVEL 2 & 3 INDOOR BACKDROP RENDER ---
+    if (currentLevel === 2 || currentLevel === 3 || currentLevel === 4) {
+        // --- LEVEL 2, 3 & 4 INDOOR/GARDENS BACKDROP RENDER ---
         ctx.save();
         ctx.imageSmoothingEnabled = false;
 
         const bgHeight = player.groundY + 10; // 270px
         
-        if (currentLevel === 3) {
+        if (currentLevel === 4) {
+            // Draw Level 4 scrolling gardens backdrop
+            const bgScroll = (distance * 20) % canvas.width;
+            if (isGardensBgLoaded) {
+                ctx.drawImage(gardensBgImage, -bgScroll, 0, canvas.width, bgHeight);
+                ctx.drawImage(gardensBgImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
+            } else {
+                ctx.fillStyle = '#b8e6d0';
+                ctx.fillRect(0, 0, canvas.width, bgHeight);
+            }
+        } else if (currentLevel === 3) {
             // Draw Level 3 stationary classroom lab backdrop
             if (isClassroomLevel3Loaded) {
                 ctx.drawImage(classroomLevel3Image, 0, 0, canvas.width, bgHeight);
@@ -2618,6 +2856,13 @@ window.addEventListener('keydown', (e) => {
                 startLevel2();
             } else if (currentLevel === 2) {
                 startLevel3();
+            } else if (currentLevel === 4) {
+                // Play Level 4 again in Part 2
+                initGame(4);
+                gameState = 'PLAYING';
+                document.getElementById('win-screen').classList.add('hidden');
+                hudElement.classList.remove('hidden');
+                synth.startBGM();
             } else {
                 // Restart from Level 1
                 initGame(1);
@@ -2706,7 +2951,11 @@ function startGame() {
     hudElement.classList.remove('hidden');
     if (pauseToggleBtn) pauseToggleBtn.style.display = 'block';
     
-    initGame(1);
+    if (selectedCampaign === 'placement') {
+        initGame(4);
+    } else {
+        initGame(1);
+    }
     synth.init();
     synth.startBGM();
 }
@@ -2810,3 +3059,35 @@ if (pauseToggleBtn) {
 if (typeof updateSkinUI === 'function') {
     updateSkinUI();
 }
+
+// --- Campaign Selection Toggle Logic & Initialization ---
+function updateCampaignUI() {
+    if (!campaignBtnCommute || !campaignBtnPlacement) return;
+    if (selectedCampaign === 'placement') {
+        campaignBtnPlacement.classList.add('active');
+        campaignBtnCommute.classList.remove('active');
+    } else {
+        campaignBtnCommute.classList.add('active');
+        campaignBtnPlacement.classList.remove('active');
+    }
+}
+
+if (campaignBtnCommute) {
+    campaignBtnCommute.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectedCampaign = 'commute';
+        localStorage.setItem('btech-campaign', 'commute');
+        updateCampaignUI();
+    });
+}
+
+if (campaignBtnPlacement) {
+    campaignBtnPlacement.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectedCampaign = 'placement';
+        localStorage.setItem('btech-campaign', 'placement');
+        updateCampaignUI();
+    });
+}
+
+updateCampaignUI();

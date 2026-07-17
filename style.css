@@ -1183,3 +1183,83 @@ body.dark-theme .coin-light {
     50% { transform: rotate(-90deg); }
     100% { transform: rotate(0deg); }
 }
+
+/* ============================================================
+   CAMPAIGN SELECTOR SYSTEM STYLING
+   ============================================================ */
+.campaign-selector-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 15px 0;
+    width: 100%;
+}
+
+.campaign-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 5px rgba(245, 127, 23, 0.4);
+    letter-spacing: 1px;
+}
+
+.campaign-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.campaign-option-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(46, 52, 64, 0.6);
+    border: 2px solid #4c566a;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.campaign-option-card:hover {
+    background: rgba(76, 86, 106, 0.8);
+    border-color: #d8dee9;
+    transform: translateY(-2px);
+}
+
+.campaign-option-card.active {
+    background: rgba(163, 190, 140, 0.25);
+    border-color: var(--neon-green);
+    box-shadow: 0 0 10px rgba(163, 190, 140, 0.4);
+}
+
+.campaign-icon {
+    font-size: 16px;
+}
+
+.campaign-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #e5e9f0;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 900px) {
+    .campaign-selector-container {
+        margin: 8px 0;
+    }
+    .campaign-label {
+        font-size: 6px;
+    }
+    .campaign-option-card {
+        padding: 4px 8px;
+        border-width: 1px;
+    }
+    .campaign-icon {
+        font-size: 12px;
+    }
+    .campaign-name {
+        font-size: 9px;
+    }
+}
