@@ -163,7 +163,7 @@ function processPeerImage() {
     const imgData = tempCtx.getImageData(0, 0, peerImage.width, peerImage.height);
     const data = imgData.data;
     for (let i = 0; i < data.length; i += 4) {
-        if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+        if (data[i] > 210 && data[i + 1] > 210 && data[i + 2] > 210) data[i + 3] = 0;
     }
     tempCtx.putImageData(imgData, 0, 0);
 }
@@ -177,7 +177,7 @@ function processSecurityImage() {
     const imgData = tempCtx.getImageData(0, 0, securityImage.width, securityImage.height);
     const data = imgData.data;
     for (let i = 0; i < data.length; i += 4) {
-        if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+        if (data[i] > 210 && data[i + 1] > 210 && data[i + 2] > 210) data[i + 3] = 0;
     }
     tempCtx.putImageData(imgData, 0, 0);
 }
@@ -1412,6 +1412,8 @@ class GameItem {
                 this.width = 32;
                 this.height = 70;
                 this.y = player.groundY - 10;
+                this.peerIndexX = Math.floor(Math.random() * 4);
+                this.peerIndexY = Math.floor(Math.random() * 2);
                 break;
             case 'security':
                 this.width = 40;
@@ -1741,7 +1743,13 @@ class GameItem {
 
             case 'peer':
                 if (isPeerLoaded && transparentPeerCanvas) {
-                    ctx.drawImage(transparentPeerCanvas, this.x, this.y, this.width, this.height);
+                    const cellW = peerImage.width / 4;
+                    const cellH = peerImage.height / 2;
+                    ctx.drawImage(
+                        transparentPeerCanvas,
+                        this.peerIndexX * cellW, this.peerIndexY * cellH, cellW, cellH,
+                        this.x, this.y, this.width, this.height
+                    );
                 } else {
                     ctx.fillStyle = '#ff8a80';
                     ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -1758,21 +1766,43 @@ class GameItem {
                 break;
 
             case 'placement_flyer':
-                if (isFlyerLoaded && transparentFlyerCanvas) {
-                    ctx.drawImage(transparentFlyerCanvas, this.x, this.y, this.width, this.height);
-                } else {
-                    ctx.fillStyle = '#ff1744';
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                }
+                // A flyer sheet of paper folded or flat with bold red text
+                ctx.fillStyle = '#f5f5f5'; // slightly off-white paper
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Draw outline
+                ctx.strokeStyle = '#c62828'; // red border outline
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(this.x, this.y, this.width, this.height);
+                
+                // Bold red text: "INFO" and "FLYER"
+                ctx.fillStyle = '#d32f2f';
+                ctx.font = 'bold 5px "Press Start 2P"';
+                ctx.fillText("INFO", this.x + 3, this.y + 10);
+                ctx.fillText("FLYER", this.x + 2, this.y + 20);
                 break;
 
             case 'resume':
-                if (isResumeLoaded && transparentResumeCanvas) {
-                    ctx.drawImage(transparentResumeCanvas, this.x, this.y, this.width, this.height);
-                } else {
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                }
+                // Drawing a white resume sheet with small lines of text and a tiny blue photo box
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Draw outline
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(this.x, this.y, this.width, this.height);
+                
+                // Draw a tiny blue photo box
+                ctx.fillStyle = '#29b6f6';
+                ctx.fillRect(this.x + this.width - 9, this.y + 3, 6, 8);
+                
+                // Draw lines representing text
+                ctx.fillStyle = '#212121';
+                ctx.fillRect(this.x + 3, this.y + 4, 10, 2);
+                ctx.fillRect(this.x + 3, this.y + 8, 8, 2);
+                ctx.fillRect(this.x + 3, this.y + 13, 16, 1.5);
+                ctx.fillRect(this.x + 3, this.y + 16, 16, 1.5);
+                ctx.fillRect(this.x + 3, this.y + 19, 14, 1.5);
                 break;
 
             case 'sharma':
