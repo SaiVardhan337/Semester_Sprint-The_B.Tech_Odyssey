@@ -1535,12 +1535,21 @@ function drawGame() {
             const activeBgImg = useSecondBg ? campusGreeneryBgImage : gardensBgImage;
             const activeBgLoaded = useSecondBg ? isCampusGreeneryBgLoaded : isGardensBgLoaded;
             if (activeBgLoaded) {
-                ctx.drawImage(activeBgImg, -bgScroll, 0, canvas.width, bgHeight);
-                ctx.drawImage(activeBgImg, canvas.width - bgScroll, 0, canvas.width, bgHeight);
+                // Seamless horizontal scroll: tile 1 scrolls left, tile 2 immediately follows
+                const t1x = -bgScroll;
+                const t2x = canvas.width - bgScroll;
+                ctx.drawImage(activeBgImg, t1x, 0, canvas.width, bgHeight);
+                ctx.drawImage(activeBgImg, t2x, 0, canvas.width, bgHeight);
             } else {
-                ctx.fillStyle = '#b8e6d0';
+                // Fallback gradient sky + green grass
+                const grd = ctx.createLinearGradient(0, 0, 0, bgHeight);
+                grd.addColorStop(0, '#87ceeb');
+                grd.addColorStop(0.6, '#c8e6c9');
+                grd.addColorStop(1, '#388e3c');
+                ctx.fillStyle = grd;
                 ctx.fillRect(0, 0, canvas.width, bgHeight);
             }
+
         } else if (currentLevel === 3) {
             // Draw Level 3 stationary classroom lab backdrop
             if (isClassroomLevel3Loaded) {

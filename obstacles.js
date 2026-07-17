@@ -364,28 +364,16 @@ class GameItem {
                 break;
 
             case 'peer':
-                if (isPeerLoaded && transparentPeerCanvas) {
-                    const cellW = peerImage.width / 4;
-                    const cellH = peerImage.height / 2;
-                    ctx.drawImage(
-                        transparentPeerCanvas,
-                        this.peerIndexX * cellW, this.peerIndexY * cellH, cellW, cellH,
-                        this.x, this.y, this.width, this.height
-                    );
-                } else {
-                    ctx.fillStyle = '#ff8a80';
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                }
+                // Always drawn in canvas code: 8 unique vibrant pixel-art students
+                this.drawPeerPixelArt(ctx);
                 break;
 
+
             case 'security':
-                if (isSecurityLoaded && transparentSecurityCanvas) {
-                    ctx.drawImage(transparentSecurityCanvas, this.x, this.y, this.width, this.height);
-                } else {
-                    ctx.fillStyle = '#90a4ae';
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                }
+                // Always drawn in canvas code: authoritative grey-uniformed guard
+                this.drawSecurityPixelArt(ctx);
                 break;
+
 
             case 'placement_flyer':
                 ctx.fillStyle = '#f5f5f5'; // slightly off-white paper
@@ -554,7 +542,248 @@ class GameItem {
 
         ctx.restore();
     }
+
+    // 8 unique hand-drawn pixel art student characters
+    drawPeerPixelArt(ctx) {
+        const x = this.x;
+        const y = this.y;
+        // peerIndexX: 0-3, peerIndexY: 0-1 → 8 unique variants
+        const variant = this.peerIndexY * 4 + this.peerIndexX; // 0..7
+
+        const skins   = ['#f5cba7','#d4a070','#c68642','#8d5524','#f5cba7','#d4a070','#c68642','#8d5524'];
+        const hair    = ['#1a0a00','#3b2507','#000000','#2c1a0e','#8B4513','#000000','#1a0a00','#3b2507'];
+
+        // Clothing colour sets per variant [torso, bottom, accent]
+        const clothes = [
+            ['#2196f3','#37474f','#ff5722'],   // 0 blue hoodie grey jeans
+            ['#e91e63','#1a237e','#fff176'],   // 1 pink kurta dark jeans
+            ['#f44336','#4a148c','#80cbc4'],   // 2 red tee purple cargo
+            ['#4caf50','#3e2723','#ffd54f'],   // 3 green top brown jeans
+            ['#ff9800','#263238','#b2ebf2'],   // 4 orange shirt dark jeans
+            ['#9c27b0','#388e3c','#ffe082'],   // 5 purple kurta green jeans
+            ['#00bcd4','#1b5e20','#ff8a80'],   // 6 cyan hoodie dark green
+            ['#ffeb3b','#4e342e','#ce93d8'],   // 7 yellow churidar brown
+        ];
+
+        const skinColor = skins[variant];
+        const hairColor = hair[variant];
+        const [torso, bottom, accentColor] = clothes[variant];
+
+        const W = this.width;   // ~32
+        const H = this.height;  // ~70
+
+        const hx = Math.round(W * 0.28); // head x offset
+        const hw = Math.round(W * 0.44); // head width
+        const hh = Math.round(H * 0.20); // head height
+
+        ctx.save();
+
+        // --- HAIR ---
+        ctx.fillStyle = hairColor;
+        ctx.fillRect(x + hx - 1, y, hw + 2, Math.round(hh * 0.5));
+
+        // --- HEAD ---
+        ctx.fillStyle = skinColor;
+        ctx.fillRect(x + hx, y + Math.round(hh * 0.25), hw, hh);
+
+        // --- EYES (facing left) ---
+        ctx.fillStyle = '#111';
+        ctx.fillRect(x + hx + 2, y + Math.round(hh * 0.55), 3, 2);
+
+        // --- MOUTH expression smile ---
+        ctx.fillStyle = '#b03030';
+        ctx.fillRect(x + hx + 3, y + Math.round(hh * 0.85), 4, 1);
+
+        // --- NECK ---
+        const neckY = y + hh + Math.round(hh * 0.25);
+        ctx.fillStyle = skinColor;
+        ctx.fillRect(x + hx + Math.round(hw * 0.3), neckY, Math.round(hw * 0.4), 4);
+
+        // --- TORSO ---
+        const torsoY = neckY + 3;
+        const torsoH = Math.round(H * 0.35);
+        ctx.fillStyle = torso;
+        ctx.fillRect(x + Math.round(W * 0.1), torsoY, Math.round(W * 0.8), torsoH);
+
+        // Accent detail (collar/badge stripe)
+        ctx.fillStyle = accentColor;
+        ctx.fillRect(x + Math.round(W * 0.42), torsoY + 2, Math.round(W * 0.16), Math.round(torsoH * 0.55));
+
+        // --- LEFT ARM (near side, holding something) ---
+        ctx.fillStyle = torso;
+        ctx.fillRect(x, torsoY + 2, Math.round(W * 0.12), Math.round(torsoH * 0.75));
+        // Hand
+        ctx.fillStyle = skinColor;
+        ctx.fillRect(x, torsoY + Math.round(torsoH * 0.65), Math.round(W * 0.12), 5);
+
+        // --- ACCESSORY based on variant ---
+        if (variant === 0 || variant === 4) {
+            // Backpack strap visible on back
+            ctx.fillStyle = accentColor;
+            ctx.fillRect(x + Math.round(W * 0.7), torsoY, 4, torsoH);
+        }
+        if (variant === 1 || variant === 5) {
+            // Dupatta/scarf across shoulder
+            ctx.fillStyle = accentColor;
+            ctx.fillRect(x + Math.round(W * 0.55), torsoY, Math.round(W * 0.3), 4);
+        }
+        if (variant === 2 || variant === 6) {
+            // Headphones on head
+            ctx.fillStyle = '#333';
+            ctx.fillRect(x + hx - 2, y + Math.round(hh * 0.3), 4, hh);
+        }
+        if (variant === 3 || variant === 7) {
+            // Books carried in right arm
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(x + Math.round(W * 0.62), torsoY + 8, 8, Math.round(torsoH * 0.7));
+            ctx.fillStyle = accentColor;
+            ctx.fillRect(x + Math.round(W * 0.62), torsoY + 8, 8, 3);
+        }
+
+        // --- LEGS ---
+        const legY = torsoY + torsoH;
+        const legH = Math.round(H * 0.30);
+        ctx.fillStyle = bottom;
+        // Left leg
+        ctx.fillRect(x + Math.round(W * 0.15), legY, Math.round(W * 0.3), legH);
+        // Right leg
+        ctx.fillRect(x + Math.round(W * 0.52), legY, Math.round(W * 0.3), legH);
+
+        // Belt line
+        ctx.fillStyle = '#333';
+        ctx.fillRect(x + Math.round(W * 0.13), legY, Math.round(W * 0.74), 2);
+
+        // --- SHOES ---
+        const shoeY = legY + legH;
+        ctx.fillStyle = '#111';
+        ctx.fillRect(x + Math.round(W * 0.12), shoeY, Math.round(W * 0.32), 4);
+        ctx.fillRect(x + Math.round(W * 0.49), shoeY, Math.round(W * 0.32), 4);
+
+        // --- GLASSES for variant 4 ---
+        if (variant === 4) {
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x + hx + 1, y + Math.round(hh * 0.48), 5, 4);
+            ctx.strokeRect(x + hx + 7, y + Math.round(hh * 0.48), 5, 4);
+        }
+
+        // --- SHADOW on ground ---
+        ctx.fillStyle = 'rgba(0,0,0,0.15)';
+        ctx.fillRect(x + 4, shoeY + 4, W - 8, 3);
+
+        ctx.restore();
+    }
+
+    drawSecurityPixelArt(ctx) {
+        const x = this.x;
+        const y = this.y;
+        const W = this.width;   // ~40
+        const H = this.height;  // ~72
+
+        ctx.save();
+
+        // --- HAIR (short, dark) ---
+        ctx.fillStyle = '#1a0a00';
+        ctx.fillRect(x + Math.round(W*0.2), y, Math.round(W*0.6), 6);
+
+        // --- HEAD ---
+        ctx.fillStyle = '#c68642';
+        ctx.fillRect(x + Math.round(W*0.22), y + 4, Math.round(W*0.56), Math.round(H*0.18));
+
+        // --- STERN EYES ---
+        ctx.fillStyle = '#111';
+        ctx.fillRect(x + Math.round(W*0.27), y + 8, 4, 2);
+        ctx.fillRect(x + Math.round(W*0.55), y + 8, 4, 2);
+
+        // Thick eyebrows
+        ctx.fillStyle = '#1a0a00';
+        ctx.fillRect(x + Math.round(W*0.26), y + 6, 5, 2);
+        ctx.fillRect(x + Math.round(W*0.53), y + 6, 5, 2);
+
+        // Serious mouth (flat line)
+        ctx.fillStyle = '#8b3a3a';
+        ctx.fillRect(x + Math.round(W*0.32), y + 14, 7, 1);
+
+        // --- NECK ---
+        const neckY = y + Math.round(H*0.18) + 5;
+        ctx.fillStyle = '#c68642';
+        ctx.fillRect(x + Math.round(W*0.38), neckY, Math.round(W*0.24), 5);
+
+        // --- GREY UNIFORM SHIRT ---
+        const torsoY = neckY + 4;
+        const torsoH = Math.round(H*0.36);
+        ctx.fillStyle = '#607d8b'; // Slate grey uniform
+        ctx.fillRect(x + Math.round(W*0.08), torsoY, Math.round(W*0.84), torsoH);
+
+        // Collar (darker)
+        ctx.fillStyle = '#455a64';
+        ctx.fillRect(x + Math.round(W*0.35), torsoY, Math.round(W*0.3), 6);
+
+        // Badge (gold star on chest)
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(x + Math.round(W*0.2), torsoY + 8, 8, 8);
+        ctx.fillStyle = '#b8860b';
+        ctx.fillRect(x + Math.round(W*0.22), torsoY + 10, 4, 4);
+
+        // Shoulder stripes (authority marks)
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(x + Math.round(W*0.1), torsoY + 2, Math.round(W*0.16), 3);
+        ctx.fillRect(x + Math.round(W*0.74), torsoY + 2, Math.round(W*0.16), 3);
+
+        // --- LEFT ARM raised (stop gesture!) ---
+        ctx.fillStyle = '#607d8b';
+        ctx.fillRect(x, torsoY + 2, Math.round(W*0.1), Math.round(torsoH*0.6));
+        // Hand raised up (palm out)
+        ctx.fillStyle = '#c68642';
+        ctx.fillRect(x - 2, torsoY, Math.round(W*0.18), 8);
+
+        // --- RIGHT ARM (holding walkie-talkie) ---
+        ctx.fillStyle = '#607d8b';
+        ctx.fillRect(x + Math.round(W*0.9), torsoY + 4, Math.round(W*0.1), Math.round(torsoH*0.5));
+        // Walkie talkie
+        ctx.fillStyle = '#212121';
+        ctx.fillRect(x + Math.round(W*0.86), torsoY + 16, 7, 12);
+        ctx.fillStyle = '#4caf50';
+        ctx.fillRect(x + Math.round(W*0.87), torsoY + 17, 5, 2);
+
+        // --- BELT with buckle ---
+        const beltY = torsoY + torsoH;
+        ctx.fillStyle = '#212121';
+        ctx.fillRect(x + Math.round(W*0.08), beltY, Math.round(W*0.84), 4);
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(x + Math.round(W*0.42), beltY + 1, 8, 3);
+
+        // --- TROUSERS (dark grey) ---
+        const legY = beltY + 4;
+        const legH = Math.round(H*0.28);
+        ctx.fillStyle = '#37474f';
+        ctx.fillRect(x + Math.round(W*0.12), legY, Math.round(W*0.32), legH);
+        ctx.fillRect(x + Math.round(W*0.56), legY, Math.round(W*0.32), legH);
+
+        // Trouser crease lines
+        ctx.fillStyle = '#263238';
+        ctx.fillRect(x + Math.round(W*0.26), legY + 4, 2, legH - 4);
+        ctx.fillRect(x + Math.round(W*0.70), legY + 4, 2, legH - 4);
+
+        // --- BLACK BOOTS ---
+        const shoeY = legY + legH;
+        ctx.fillStyle = '#111';
+        ctx.fillRect(x + Math.round(W*0.1), shoeY, Math.round(W*0.36), 5);
+        ctx.fillRect(x + Math.round(W*0.54), shoeY, Math.round(W*0.36), 5);
+
+        // Boot shine
+        ctx.fillStyle = '#444';
+        ctx.fillRect(x + Math.round(W*0.11), shoeY + 1, Math.round(W*0.14), 2);
+        ctx.fillRect(x + Math.round(W*0.55), shoeY + 1, Math.round(W*0.14), 2);
+
+        // --- SHADOW ---
+        ctx.fillStyle = 'rgba(0,0,0,0.18)';
+        ctx.fillRect(x + 4, shoeY + 5, W - 8, 3);
+
+        ctx.restore();
+    }
 }
+
 
 // --- Object Pool for GameItems ---
 const itemPool = [];
