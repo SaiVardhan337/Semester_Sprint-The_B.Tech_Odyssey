@@ -67,102 +67,93 @@ const SPRITE_MAP = {
     hurt: { x: 324, y: 408, w: 160, h: 260 }
 };
 
-// Character Spritesheet Setup (Varsity Jacket Hero)
+// Image Objects Declaration (Loaded asynchronously via Promise.all)
 const spriteSheet = new Image();
 let isSpriteSheetLoaded = false;
 let transparentSpriteCanvas = null;
-spriteSheet.onload = () => {
-    isSpriteSheetLoaded = true;
-    processSpriteSheet();
-};
-spriteSheet.src = 'assets/vardhan_spritesheet.jpg';
 
-function processSpriteSheet() {
-    transparentSpriteCanvas = document.createElement('canvas');
-    transparentSpriteCanvas.width = spriteSheet.width;
-    transparentSpriteCanvas.height = spriteSheet.height;
-    const tempCtx = transparentSpriteCanvas.getContext('2d');
-    tempCtx.drawImage(spriteSheet, 0, 0);
-
-    try {
-        const imgData = tempCtx.getImageData(0, 0, spriteSheet.width, spriteSheet.height);
-        const data = imgData.data;
-
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            
-            // If it's near-white, make it transparent
-            if (r > 230 && g > 230 && b > 230) {
-                data[i + 3] = 0;
-            } else {
-                // Lighten skin tones to match fair skin tone requirement
-                if (r > 120 && g > 70 && b > 40 && r > g && g > b && r - b > 30 && r < 220) {
-                    data[i]     = Math.min(255, r + 100);
-                    data[i + 1] = Math.min(255, g + 90);
-                    data[i + 2] = Math.min(255, b + 80);
-                }
-            }
-        }
-        tempCtx.putImageData(imgData, 0, 0);
-    } catch (e) {
-        console.warn("Local CORS security policy blocked canvas pixel manipulation. Falling back to raw image.", e);
-        tempCtx.drawImage(spriteSheet, 0, 0);
-    }
-}
-
-// Level 4 Gardens Background Image
 const gardensBgImage = new Image();
 let isGardensBgLoaded = false;
-gardensBgImage.onload = () => { isGardensBgLoaded = true; };
-gardensBgImage.src = 'assets/gardens_bg.jpg';
 
-// Level 4 Campus Greenery Background (appears after 250m)
 const campusGreeneryBgImage = new Image();
 let isCampusGreeneryBgLoaded = false;
-campusGreeneryBgImage.onload = () => { isCampusGreeneryBgLoaded = true; };
-campusGreeneryBgImage.src = 'assets/campus_greenery_bg.jpg';
 
-// Level 4 Peer Blocker Image
 const peerImage = new Image();
 let isPeerLoaded = false;
 let transparentPeerCanvas = null;
-peerImage.onload = () => {
-    isPeerLoaded = true;
-    processPeerImage();
-};
-peerImage.src = 'assets/peer.png';
 
-// Level 4 Security Guard Image
 const securityImage = new Image();
 let isSecurityLoaded = false;
 let transparentSecurityCanvas = null;
-securityImage.onload = () => {
-    isSecurityLoaded = true;
-    processSecurityImage();
-};
-securityImage.src = 'assets/security.png';
 
-// Level 4 Resume Collectible Image
 const resumeImage = new Image();
 let isResumeLoaded = false;
 let transparentResumeCanvas = null;
-resumeImage.onload = () => {
-    isResumeLoaded = true;
-    processResumeImage();
-};
-resumeImage.src = 'assets/resume.jpg';
 
-// Level 4 Flyer Obstacle Image
 const flyerImage = new Image();
 let isFlyerLoaded = false;
 let transparentFlyerCanvas = null;
-flyerImage.onload = () => {
-    isFlyerLoaded = true;
-    processFlyerImage();
-};
-flyerImage.src = 'assets/placement_flyer.jpg';
+
+const dogImage = new Image();
+let isDogImageLoaded = false;
+let transparentDogCanvas = null;
+
+const cowImage = new Image();
+let isCowImageLoaded = false;
+let transparentCowCanvas = null;
+
+const corridorImage = new Image();
+let isCorridorLoaded = false;
+
+const classroomLevel3Image = new Image();
+let isClassroomLevel3Loaded = false;
+
+const professorImage = new Image();
+let isProfessorLoaded = false;
+let transparentProfessorCanvas = null;
+
+function preloadImage(imgObject, src, processCallback = null) {
+    return new Promise((resolve) => {
+        imgObject.onload = () => {
+            if (processCallback) processCallback();
+            resolve();
+        };
+        imgObject.onerror = () => {
+            console.error("Failed to load image:", src);
+            resolve();
+        };
+        imgObject.src = src;
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const menuTitle = document.querySelector('#menu-screen .menu-title');
+    if (menuTitle) {
+        menuTitle.textContent = "LOADING CAMPUS ASSETS...";
+    }
+
+    const preloadPromises = [
+        preloadImage(spriteSheet, 'assets/vardhan_spritesheet.jpg', () => { isSpriteSheetLoaded = true; processSpriteSheet(); }),
+        preloadImage(gardensBgImage, 'assets/gardens_bg.jpg', () => { isGardensBgLoaded = true; }),
+        preloadImage(campusGreeneryBgImage, 'assets/campus_greenery_bg.jpg', () => { isCampusGreeneryBgLoaded = true; }),
+        preloadImage(peerImage, 'assets/peer.png', () => { isPeerLoaded = true; processPeerImage(); }),
+        preloadImage(securityImage, 'assets/security.png', () => { isSecurityLoaded = true; processSecurityImage(); }),
+        preloadImage(resumeImage, 'assets/resume.jpg', () => { isResumeLoaded = true; processResumeImage(); }),
+        preloadImage(flyerImage, 'assets/placement_flyer.jpg', () => { isFlyerLoaded = true; processFlyerImage(); }),
+        preloadImage(dogImage, 'assets/dog.png', () => { isDogImageLoaded = true; processDogImage(); }),
+        preloadImage(cowImage, 'assets/cow.png', () => { isCowImageLoaded = true; processCowImage(); }),
+        preloadImage(corridorImage, 'assets/corridor.jpg', () => { isCorridorLoaded = true; }),
+        preloadImage(classroomLevel3Image, 'assets/classroom_level3.png', () => { isClassroomLevel3Loaded = true; }),
+        preloadImage(professorImage, 'assets/professor.png', () => { isProfessorLoaded = true; processProfessorImage(); })
+    ];
+
+    Promise.all(preloadPromises).then(() => {
+        console.log("All assets preloaded successfully! Game ready.");
+        if (menuTitle) {
+            menuTitle.textContent = "PRESS SPACE TO START";
+        }
+    });
+});
 
 function processPeerImage() {
     transparentPeerCanvas = document.createElement('canvas');
@@ -240,49 +231,7 @@ function processFlyerImage() {
     }
 }
 
-// Dog Sprite Setup (Light background transparency filter)
-const dogImage = new Image();
-let isDogImageLoaded = false;
-let transparentDogCanvas = null;
-dogImage.onload = () => {
-    isDogImageLoaded = true;
-    processDogImage();
-};
-dogImage.src = 'assets/dog.png';
 
-// Cow Sprite Setup (Light background transparency filter)
-const cowImage = new Image();
-let isCowImageLoaded = false;
-let transparentCowCanvas = null;
-cowImage.onload = () => {
-    isCowImageLoaded = true;
-    processCowImage();
-};
-cowImage.src = 'assets/cow.png';
-
-// (Old classroom image logic removed)
-
-// Corridor Background Image (Level 2, 0 to 450m)
-const corridorImage = new Image();
-let isCorridorLoaded = false;
-corridorImage.onload = () => { isCorridorLoaded = true; };
-corridorImage.src = 'assets/corridor.jpg';
-
-// Level 3 Classroom Lab Background Image
-const classroomLevel3Image = new Image();
-let isClassroomLevel3Loaded = false;
-classroomLevel3Image.onload = () => { isClassroomLevel3Loaded = true; };
-classroomLevel3Image.src = 'assets/classroom_level3.png';
-
-// Professor Boss Sprite Image
-const professorImage = new Image();
-let isProfessorLoaded = false;
-let transparentProfessorCanvas = null;
-professorImage.onload = () => {
-    isProfessorLoaded = true;
-    processProfessorImage();
-};
-professorImage.src = 'assets/professor.png';
 
 function processProfessorImage() {
     transparentProfessorCanvas = document.createElement('canvas');
@@ -367,364 +316,13 @@ function processCowImage() {
 
 
 
-// --- Web Audio API Synth Engine ---
-class AudioSynth {
-    constructor() {
-        this.ctx = null;
-        this.muted = localStorage.getItem('btech-muted') !== 'false'; // Defaults to true (muted)
-        this.seqTimer = null;
-        this.seqIndex = 0;
-        
-        // Chaotic-Peaceful mixed music box arrays (32 steps chord progression)
-        // Soft low pentatonic chords (A minor 7, C major 7, E minor, G major)
-        this.bassline = [
-            110.00, 0, 110.00, 0, 130.81, 0, 130.81, 0, // Am7
-            146.83, 0, 146.83, 0, 164.81, 0, 196.00, 0, // D/E/G
-            110.00, 0, 110.00, 0, 196.00, 0, 196.00, 0, // G/Am
-            164.81, 0, 146.83, 0, 130.81, 0, 98.00, 0   // Descending pass
-        ];
-        this.melody = [
-            440.00, 0, 523.25, 587.33, 659.25, 0, 783.99, 0,
-            0, 659.25, 523.25, 0, 587.33, 440.00, 0, 392.00,
-            329.63, 0, 392.00, 0, 440.00, 523.25, 587.33, 659.25,
-            0, 0, 523.25, 0, 392.00, 329.63, 293.66, 0
-        ];
+// Mute button listener
+document.addEventListener('DOMContentLoaded', () => {
+    const soundBtn = document.getElementById('sound-btn');
+    if (soundBtn && typeof synth !== 'undefined') {
+        soundBtn.addEventListener('click', () => synth.toggleMute());
     }
-
-    init() {
-        if (!this.ctx) {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-    }
-
-    toggleMute() {
-        this.muted = !this.muted;
-        localStorage.setItem('btech-muted', this.muted);
-        if (this.muted) {
-            soundBtn.textContent = 'MUTED';
-            soundBtn.classList.remove('unmuted');
-            this.stopBGM();
-        } else {
-            soundBtn.textContent = 'SOUND ON';
-            soundBtn.classList.add('unmuted');
-            this.init();
-            this.startBGM();
-            // Resume context if suspended
-            if (this.ctx.state === 'suspended') {
-                this.ctx.resume();
-            }
-        }
-    }
-
-    playJump() {
-        if (this.muted) return;
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(160, now);
-        osc.frequency.exponentialRampToValueAtTime(700, now + 0.15);
-        
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.linearRampToValueAtTime(0.001, now + 0.15);
-        
-        osc.start(now);
-        osc.stop(now + 0.15);
-    }
-
-    playSlide() {
-        if (this.muted) return;
-        this.init();
-        const now = this.ctx.currentTime;
-        
-        // Synthesize noise for sliding on road
-        const bufferSize = this.ctx.sampleRate * 0.25;
-        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
-        
-        const noise = this.ctx.createBufferSource();
-        noise.buffer = buffer;
-        
-        const filter = this.ctx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(1000, now);
-        filter.frequency.linearRampToValueAtTime(200, now + 0.25);
-        
-        const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.linearRampToValueAtTime(0.001, now + 0.25);
-        
-        noise.connect(filter);
-        filter.connect(gain);
-        gain.connect(this.ctx.destination);
-        
-        noise.start(now);
-    }
-
-    playCollect() {
-        if (this.muted) return;
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, now); // D5
-        osc.frequency.setValueAtTime(880.00, now + 0.08); // A5
-        
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.linearRampToValueAtTime(0.001, now + 0.22);
-        
-        osc.start(now);
-        osc.stop(now + 0.22);
-    }
-
-    playHit() {
-        if (this.muted) return;
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(180, now);
-        osc.frequency.linearRampToValueAtTime(30, now + 0.3);
-        
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.linearRampToValueAtTime(0.001, now + 0.3);
-        
-        osc.start(now);
-        osc.stop(now + 0.3);
-    }
-
-    playGameOver() {
-        if (this.muted) return;
-        this.init();
-        this.stopBGM();
-        const now = this.ctx.currentTime;
-        const sadNotes = [392.00, 349.23, 311.13, 261.63, 196.00]; // G4, F4, D#4, C4, G3
-        
-        sadNotes.forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(freq, now + idx * 0.12);
-            gain.gain.setValueAtTime(0.08, now + idx * 0.12);
-            gain.gain.linearRampToValueAtTime(0.001, now + idx * 0.12 + 0.25);
-            
-            osc.start(now + idx * 0.12);
-            osc.stop(now + idx * 0.12 + 0.25);
-        });
-    }
-
-    playDogBark() {
-        if (this.muted) return;
-        this.init();
-        const now = this.ctx.currentTime;
-        
-        // "Bow-bow!" - Two quick, realistic retro barks
-        this.triggerSingleBark(now);
-        this.triggerSingleBark(now + 0.12);
-    }
-
-    triggerSingleBark(time) {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(280, time);
-        osc.frequency.exponentialRampToValueAtTime(90, time + 0.08);
-        
-        const filter = this.ctx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(380, time);
-        
-        const bufferSize = this.ctx.sampleRate * 0.08;
-        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
-        const noise = this.ctx.createBufferSource();
-        noise.buffer = buffer;
-        
-        const noiseGain = this.ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.03, time);
-        noiseGain.gain.linearRampToValueAtTime(0.001, time + 0.08);
-        
-        gain.gain.setValueAtTime(0.1, time);
-        gain.gain.linearRampToValueAtTime(0.001, time + 0.08);
-        
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(this.ctx.destination);
-        
-        noise.connect(noiseGain);
-        noiseGain.connect(this.ctx.destination);
-        
-        osc.start(time);
-        osc.stop(time + 0.08);
-        noise.start(time);
-    }
-
-    playWinSound() {
-        if (this.muted) return;
-        this.init();
-        this.stopBGM();
-        const now = this.ctx.currentTime;
-        const winNotes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; // C4, E4, G4, C5, E5, G5, C6 (victory arpeggio)
-        winNotes.forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-            gain.gain.setValueAtTime(0.08, now + idx * 0.08);
-            gain.gain.linearRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
-            
-            osc.start(now + idx * 0.08);
-            osc.stop(now + idx * 0.08 + 0.35);
-        });
-    }
-
-    startBGM() {
-        if (this.muted) return;
-        this.stopBGM();
-        this.seqIndex = 0;
-        
-        // Slower, peaceful tempo (~58 BPM, 260ms per step)
-        const stepTime = 260; 
-        this.seqTimer = setInterval(() => {
-            if (this.muted || gameState !== 'PLAYING') return;
-            this.playSequenceStep();
-        }, stepTime);
-    }
-
-    stopBGM() {
-        if (this.seqTimer) {
-            clearInterval(this.seqTimer);
-            this.seqTimer = null;
-        }
-    }
-
-    playSequenceStep() {
-        const now = this.ctx.currentTime;
-        
-        // 1. Play Soft Bass Note (Triangle wave, lowpassed for warmth)
-        const bassFreq = this.bassline[this.seqIndex % this.bassline.length];
-        if (bassFreq > 0) {
-            const bOsc = this.ctx.createOscillator();
-            const bGain = this.ctx.createGain();
-            const bFilter = this.ctx.createBiquadFilter();
-            
-            bOsc.type = 'triangle';
-            bOsc.frequency.setValueAtTime(bassFreq, now);
-            
-            bFilter.type = 'lowpass';
-            bFilter.frequency.setValueAtTime(250, now); // Cut off harsh harmonics
-            
-            bGain.gain.setValueAtTime(0.04, now); // Soft background volume
-            bGain.gain.linearRampToValueAtTime(0.001, now + 0.22);
-            
-            bOsc.connect(bFilter);
-            bFilter.connect(bGain);
-            bGain.connect(this.ctx.destination);
-            
-            bOsc.start(now);
-            bOsc.stop(now + 0.22);
-        }
-
-        // 2. Play Peaceful Melody Note (Sine wave for ambient music-box styling)
-        const melFreq = this.melody[this.seqIndex % this.melody.length];
-        if (melFreq > 0) {
-            const mOsc = this.ctx.createOscillator();
-            const mGain = this.ctx.createGain();
-            
-            mOsc.type = 'sine'; // Pure, warm tone that prevents headaches
-            mOsc.frequency.setValueAtTime(melFreq, now);
-            
-            mGain.gain.setValueAtTime(0.015, now); // Gentle, subtle level
-            mGain.gain.linearRampToValueAtTime(0.001, now + 0.24);
-            
-            mOsc.connect(mGain);
-            mGain.connect(this.ctx.destination);
-            
-            mOsc.start(now);
-            mOsc.stop(now + 0.24);
-        }
-
-        // 3. Play Chaotic digital textures (15% chance of light 'CS compiling bubble' glitch pings)
-        if (Math.random() < 0.15) {
-            const gOsc = this.ctx.createOscillator();
-            const gGain = this.ctx.createGain();
-            
-            gOsc.type = 'sine';
-            const startFreq = 600 + Math.random() * 600;
-            gOsc.frequency.setValueAtTime(startFreq, now);
-            gOsc.frequency.exponentialRampToValueAtTime(startFreq * 2, now + 0.05);
-            
-            gGain.gain.setValueAtTime(0.006, now); // Extremely quiet ambient texture
-            gGain.gain.linearRampToValueAtTime(0.0001, now + 0.05);
-            
-            gOsc.connect(gGain);
-            gGain.connect(this.ctx.destination);
-            
-            gOsc.start(now);
-            gOsc.stop(now + 0.05);
-        }
-
-        // 4. Subtle, soft percussive noise hi-hat (on beat 4 for structure, very quiet)
-        if (this.seqIndex % 8 === 4) {
-            const bufferSize = this.ctx.sampleRate * 0.03;
-            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-            const noise = this.ctx.createBufferSource();
-            noise.buffer = buffer;
-            
-            const filter = this.ctx.createBiquadFilter();
-            filter.type = 'highpass';
-            filter.frequency.setValueAtTime(8000, now); // soft high rattle
-            
-            const gain = this.ctx.createGain();
-            gain.gain.setValueAtTime(0.008, now); // barely audible
-            gain.gain.linearRampToValueAtTime(0.0001, now + 0.03);
-            
-            noise.connect(filter);
-            filter.connect(gain);
-            gain.connect(this.ctx.destination);
-            
-            noise.start(now);
-        }
-
-        this.seqIndex++;
-    }
-}
-
-const synth = new AudioSynth();
-soundBtn.addEventListener('click', () => synth.toggleMute());
+});
 
 // --- Parallax Scrolling Background Elements ---
 class BackgroundLayer {
@@ -1193,821 +791,6 @@ const bgLayers = [
     })
 ];
 
-// --- Player Object (Vardhan) ---
-const player = {
-    x: 80,
-    y: 200,
-    width: 60,
-    height: 80,
-    spriteW: 64, // visual sizes
-    spriteH: 80,
-    
-    // Physics
-    vy: 0,
-    gravity: 0.72,
-    jumpForce: -13.5,
-    doubleJumpForce: -11.0,
-    groundY: 260,
-    
-    // States
-    isJumping: false,
-    canDoubleJump: false,
-    isSliding: false,
-    slideTimer: 0,
-    slideDuration: 40, // frames
-    
-    // Animation
-    animFrame: 0,
-    animTick: 0,
-    animSpeed: 5, // Ticks per frame
-    
-    // Hitbox offsets (makes the collision detection feel fair)
-    getHitbox() {
-        if (this.isSliding) {
-            return {
-                x: this.x + 8,
-                y: this.y + 40,
-                w: this.width - 12,
-                h: this.height - 40
-            };
-        }
-        return {
-            x: this.x + 12,
-            y: this.y + 8,
-            w: this.width - 24,
-            h: this.height - 12
-        };
-    },
-
-    reset() {
-        this.y = this.groundY;
-        this.vy = 0;
-        this.isJumping = false;
-        this.canDoubleJump = false;
-        this.isSliding = false;
-        this.animFrame = 0;
-        this.animTick = 0;
-    },
-
-    jump() {
-        if (this.isSliding) return;
-        
-        if (!this.isJumping) {
-            this.vy = this.jumpForce;
-            this.isJumping = true;
-            this.canDoubleJump = true;
-            synth.playJump();
-            spawnDust(this.x + 10, this.y + this.height, 8);
-        } else if (this.canDoubleJump) {
-            this.vy = this.doubleJumpForce;
-            this.canDoubleJump = false;
-            synth.playJump();
-            spawnDust(this.x + 10, this.y + 20, 6);
-        }
-    },
-
-    slide() {
-        if (this.isJumping) {
-            // fast drop / slam down
-            this.vy = 12;
-            return;
-        }
-        if (!this.isSliding) {
-            this.isSliding = true;
-            this.slideTimer = this.slideDuration;
-            synth.playSlide();
-            spawnDust(this.x + 5, this.y + this.height - 10, 5);
-        }
-    },
-
-    update() {
-        // Handle Slide duration
-        if (this.isSliding) {
-            this.slideTimer--;
-            if (this.slideTimer <= 0) {
-                this.isSliding = false;
-            }
-            // Sliding dust
-            if (Math.random() < 0.3) {
-                spawnDust(this.x - 5, this.y + this.height - 5, 2);
-            }
-        }
-
-        // Gravity physics
-        this.vy += this.gravity;
-        this.y += this.vy;
-
-        // Ground constraint
-        const targetGround = this.isSliding ? this.groundY + 20 : this.groundY;
-        if (this.y >= targetGround) {
-            this.y = targetGround;
-            this.vy = 0;
-            this.isJumping = false;
-            this.canDoubleJump = false;
-        }
-
-        // Animation ticking
-        if (currentLevel === 3 && !this.isJumping && !this.isSliding) {
-            this.animFrame = 0;
-            this.animTick = 0;
-        } else {
-            this.animTick++;
-            if (this.animTick >= this.animSpeed) {
-                this.animTick = 0;
-                this.animFrame = (this.animFrame + 1) % 4; // 4 run frames
-            }
-        }
-    },
-
-    draw() {
-        ctx.save();
-
-        // Flash Vardhan if invincible (Chai energy!)
-        let drawAlpha = 1;
-        if (invincibilityTimer > 0) {
-            if (Math.floor(Date.now() / 50) % 2 === 0) {
-                ctx.shadowColor = '#00f0ff';
-                ctx.shadowBlur = 15;
-            } else {
-                ctx.shadowColor = '#ff007f';
-                ctx.shadowBlur = 15;
-            }
-        }
-
-        let activeCanvas = transparentSpriteCanvas;
-        let isActiveLoaded = isSpriteSheetLoaded;
-
-        if (isActiveLoaded && activeCanvas) {
-            // Render Vardhan using the spritesheet
-            let sourceRect = SPRITE_MAP.run[this.animFrame]; // Running
-
-            if (this.isJumping) {
-                sourceRect = SPRITE_MAP.jump;
-            } else if (this.isSliding) {
-                sourceRect = SPRITE_MAP.slide;
-            } else if (gameState === 'GAMEOVER') {
-                sourceRect = SPRITE_MAP.hurt;
-            }
-
-            // Draw to canvas
-            const scaleW = this.isSliding ? 75 : 60;
-            const scaleH = this.isSliding ? 50 : 80;
-            const renderY = this.isSliding ? this.y + 30 : this.y;
-
-            ctx.drawImage(
-                activeCanvas,
-                sourceRect.x, sourceRect.y, sourceRect.w, sourceRect.h,
-                this.x, renderY, scaleW, scaleH
-            );
-        } else {
-            // Fallback placeholder block rendering in case sprite loading fails
-            ctx.fillStyle = invincibilityTimer > 0 ? '#ff007f' : '#fff000';
-            const hBox = this.getHitbox();
-            ctx.fillRect(hBox.x, hBox.y, hBox.w, hBox.h);
-        }
-
-        ctx.restore();
-    }
-};
-
-// QA pairs dictionary for Level 3
-const VIVA_QA = [
-    { q: "Bubble Sort Worst Case?", a: "O(N^2)" },
-    { q: "Binary Search Time?", a: "O(log N)" },
-    { q: "LIFO Data Structure?", a: "Stack" },
-    { q: "FIFO Data Structure?", a: "Queue" },
-    { q: "HTML structure tag?", a: "div" },
-    { q: "CSS margin spacing?", a: "Margin" },
-    { q: "Local storage key?", a: "localStorage" }
-];
-
-// --- Obstacles & Collectibles Definition ---
-class GameItem {
-    constructor(type, x, y, speedMult = 1, extra = null) {
-        this.type = type; // cow, dog, auto, sharma, bug, chai, sheet, commit, magnet, laser, answer
-        this.x = x;
-        this.y = y;
-        this.width = 40;
-        this.height = 40;
-        this.speedMult = speedMult;
-        this.extra = extra;
-        this.markedForDeletion = false;
-        
-        // Customize details
-        this.setupType();
-    }
-
-    setupType() {
-        switch (this.type) {
-            case 'dog':
-                this.width = 72;
-                this.height = 58;
-                // Dog stands ON the pavement (groundY = 260; pavement from 260 to 300)
-                // Dog feet at 260+58=318, so y = 260-58+58 = 260
-                this.y = player.groundY + 2;
-                this.animFrame = 0;
-                break;
-            case 'cow':
-                this.width = 90;
-                this.height = 76;
-                // Standing cow sits on pavement/road junction, bottom aligned at Y=320
-                this.y = player.groundY - 16;
-                break;
-            case 'auto':
-                this.width = 72;
-                this.height = 58;
-                // Auto on road surface (road starts at groundY+40)
-                this.y = player.groundY + 42;
-                break;
-            case 'sharma':
-                this.width = 36;
-                this.height = 72;
-                // Sharma stands on pavement
-                this.y = player.groundY;
-                this.direction = -1;
-                this.walkRange = 80;
-                this.startX = this.x;
-                break;
-            case 'bug':
-                this.width = 130;
-                this.height = 28;
-                // BUG floats at head height — player must SLIDE to avoid
-                // Player head is at (groundY - height) = 260 - 80 = 180; bug bottom at ~228
-                this.y = player.groundY - 52;
-                const bugs = ["NullPointerException", "Segmentation Fault", "Merge Conflict", "StackOverflowError", "Infinite Loop"];
-                this.bugText = bugs[Math.floor(Math.random() * bugs.length)];
-                break;
-            case 'bench':
-                this.width = 65;
-                this.height = 36;
-                // Stands on the floor
-                this.y = player.groundY + 24; 
-                break;
-            case 'podium':
-                this.width = 40;
-                this.height = 60;
-                this.y = player.groundY; // stands on pavement/floor
-                break;
-            case 'peer':
-                this.width = 32;
-                this.height = 70;
-                this.y = player.groundY - 10;
-                this.peerIndexX = Math.floor(Math.random() * 4);
-                this.peerIndexY = Math.floor(Math.random() * 2);
-                break;
-            case 'security':
-                this.width = 40;
-                this.height = 72;
-                this.y = player.groundY - 12;
-                break;
-            case 'placement_flyer':
-                this.width = 30;
-                this.height = 30;
-                this.y = player.groundY + 5 + Math.random() * 10;
-                break;
-            case 'resume':
-                this.width = 24;
-                this.height = 28;
-                this.y = player.groundY - 24;
-                break;
-            case 'backpack':
-                this.width = 34;
-                this.height = 34;
-                this.y = player.groundY + 26; // lies on floor
-                break;
-            case 'classmate':
-                this.width = 32;
-                this.height = 70;
-                this.y = player.groundY - 10; // stands on floor
-                break;
-            case 'wetsign':
-                this.width = 30;
-                this.height = 42;
-                this.y = player.groundY + 18; // stands on floor
-                break;
-            case 'pothole':
-                // Pothole is on road surface (road starts at groundY+40)
-                this.width = 56;
-                this.height = 16;
-                this.y = player.groundY + 48;
-                break;
-            case 'trashcan':
-                this.width = 32;
-                this.height = 45;
-                // Trash can stands on pavement or floor
-                this.y = player.groundY + 15;
-                break;
-            
-            // Collectibles (float at mid-player height for easy collection)
-            case 'chai':
-                this.width = 28;
-                this.height = 28;
-                this.y = player.groundY - 20;
-                break;
-            case 'sheet':
-                this.width = 24;
-                this.height = 28;
-                this.y = player.groundY - 24;
-                break;
-            case 'commit':
-                this.width = 22;
-                this.height = 22;
-                this.y = player.groundY - 18;
-                break;
-            case 'magnet':
-                this.width = 24;
-                this.height = 24;
-                this.y = player.groundY - 20;
-                break;
-            case 'laser':
-                this.width = 50;
-                this.height = 6;
-                this.isHigh = Math.random() < 0.5;
-                this.y = this.isHigh ? player.groundY - 15 : player.groundY + 30;
-                
-                const qaIndex = Math.floor(Math.random() * VIVA_QA.length);
-                this.qaPair = VIVA_QA[qaIndex];
-                this.questionText = this.qaPair.q;
-                this.laserColor = this.isHigh ? '#ff0055' : '#00ffcc';
-                break;
-            case 'answer':
-                this.width = 130;
-                this.height = 24;
-                this.y = player.groundY - 35 - Math.random() * 80;
-                this.answerText = this.extra || "O(1)";
-                break;
-        }
-    }
-
-    getHitbox() {
-        // Safe padded hitbox
-        return {
-            x: this.x + 4,
-            y: this.y + 4,
-            w: this.width - 8,
-            h: this.height - 8
-        };
-    }
-
-    update() {
-        // Move towards left
-        let speed = gameSpeed * this.speedMult;
-        if (currentLevel === 3) {
-            speed = 5.5 * this.speedMult;
-        }
-        
-        // शर्मा सर walks back and forth
-        if (this.type === 'sharma') {
-            this.x += this.direction * 1.5;
-            if (Math.abs(this.x - this.startX) > this.walkRange) {
-                this.direction *= -1;
-            }
-        }
-        
-        // Magnet pulling effect
-        if (magnetTimer > 0 && ['chai', 'sheet', 'commit', 'magnet', 'answer'].includes(this.type)) {
-            const dx = player.x - this.x;
-            const dy = player.y - this.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 200) {
-                const pullSpeed = currentLevel === 3 ? 8 : (gameSpeed + 4);
-                this.x += (dx / dist) * pullSpeed;
-                this.y += (dy / dist) * pullSpeed;
-            } else {
-                this.x -= speed;
-            }
-        } else {
-            this.x -= speed;
-        }
-
-        if (this.x < -this.width - 20) {
-            if (this.type === 'laser' && !this.markedForDeletion) {
-                vivaProgress++;
-                updateHUD();
-                if (vivaProgress >= 5) {
-                    triggerWin();
-                }
-            }
-            this.markedForDeletion = true;
-        }
-
-        // Animation for dog
-        if (this.type === 'dog') {
-            if (Math.floor(Date.now() / 100) % 2 === 0) {
-                this.animFrame = 1;
-            } else {
-                this.animFrame = 0;
-            }
-        }
-    }
-
-    draw() {
-        ctx.save();
-
-        switch (this.type) {
-            case 'dog':
-                // Draw transparent dog sprite with running bounce effect
-                if (isDogImageLoaded && transparentDogCanvas) {
-                    ctx.save();
-                    const bounce = Math.sin(Date.now() / 80) * 4;
-                    ctx.drawImage(transparentDogCanvas, this.x, this.y + bounce, this.width, this.height);
-                    ctx.restore();
-                } else {
-                    // Fallback block dog drawing
-                    ctx.fillStyle = '#b05a27';
-                    ctx.fillRect(this.x, this.y + 10, this.width, this.height - 10);
-                }
-                break;
-                
-            case 'cow':
-                if (isCowImageLoaded && transparentCowCanvas) {
-                    ctx.drawImage(transparentCowCanvas, this.x, this.y, this.width, this.height);
-                } else {
-                    // Fallback Sleeping Indian Cow
-                    ctx.fillStyle = '#e8d8c8';
-                    ctx.fillRect(this.x + 10, this.y + 10, 45, 35); // Torso
-                    ctx.fillRect(this.x + 45, this.y, 15, 20); // Head
-                    ctx.fillStyle = '#bda58d';
-                    ctx.fillRect(this.x + 50, this.y - 6, 4, 8); // Horns
-                    ctx.fillRect(this.x + 56, this.y - 6, 4, 8);
-                    ctx.fillStyle = '#8c735d';
-                    ctx.fillRect(this.x + 12, this.y + 40, 6, 5); // Sitting Hooves
-                    ctx.fillRect(this.x + 35, this.y + 40, 6, 5);
-                }
-                break;
-
-            case 'auto':
-                // Yellow-Green Desi Auto
-                ctx.fillStyle = '#39a737'; // Green bottom
-                ctx.fillRect(this.x, this.y + 25, this.width, 22);
-                ctx.fillStyle = '#fff000'; // Yellow top
-                ctx.fillRect(this.x, this.y + 5, this.width, 20);
-                
-                ctx.fillStyle = '#000'; // Window cutouts
-                ctx.fillRect(this.x + 10, this.y + 8, 20, 12);
-                ctx.fillRect(this.x + 38, this.y + 8, 22, 12);
-
-                ctx.fillStyle = '#222'; // Black Wheels
-                ctx.beginPath();
-                ctx.arc(this.x + 15, this.y + 50, 7, 0, Math.PI * 2);
-                ctx.arc(this.x + 50, this.y + 50, 7, 0, Math.PI * 2);
-                ctx.fill();
-                break;
-
-            case 'bench':
-                // Corridor/classroom wooden bench
-                ctx.fillStyle = '#795548'; // Wood wooden seat
-                ctx.fillRect(this.x, this.y + 10, this.width, 8);
-                ctx.fillStyle = '#4e342e'; // Dark brown legs
-                ctx.fillRect(this.x + 8, this.y + 18, 6, 18);
-                ctx.fillRect(this.x + this.width - 14, this.y + 18, 6, 18);
-                ctx.fillStyle = '#8d6e63'; // Backrest
-                ctx.fillRect(this.x, this.y, this.width, 6);
-                ctx.fillRect(this.x + 8, this.y + 6, 6, 4);
-                ctx.fillRect(this.x + this.width - 14, this.y + 6, 6, 4);
-                break;
-
-            case 'podium':
-                // Wooden podium body
-                ctx.fillStyle = '#6d4c41'; // Dark wooden body
-                ctx.fillRect(this.x + 4, this.y + 10, this.width - 8, this.height - 10);
-                
-                // Slanted top board
-                ctx.fillStyle = '#8d6e63'; // Lighter brown top
-                ctx.fillRect(this.x, this.y + 2, this.width, 8);
-                
-                // Standing microphone
-                ctx.strokeStyle = '#333333';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(this.x + 12, this.y + 2);
-                ctx.lineTo(this.x + 8, this.y - 12);
-                ctx.stroke();
-                
-                // Mic head
-                ctx.fillStyle = '#aaaaaa';
-                ctx.fillRect(this.x + 6, this.y - 15, 4, 4);
-                
-                // White paper notes on podium
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(this.x + 20, this.y + 4, 12, 4);
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(this.x + 22, this.y + 6, 8, 1);
-                break;
-
-            case 'backpack':
-                // Main backpack bag
-                ctx.fillStyle = '#0288d1'; // Bright blue backpack
-                ctx.fillRect(this.x + 4, this.y + 4, this.width - 8, this.height - 4);
-                
-                // Front pocket
-                ctx.fillStyle = '#03a9f4'; // Lighter blue front pocket
-                ctx.fillRect(this.x + 8, this.y + 14, this.width - 16, this.height - 18);
-                
-                // Handle/Strap loops
-                ctx.fillStyle = '#01579b'; // Dark blue straps/handle
-                ctx.fillRect(this.x + 12, this.y, 10, 4);
-                
-                // Zipper detailing
-                ctx.fillStyle = '#cfd8dc'; // Silver zipper
-                ctx.fillRect(this.x + 6, this.y + 12, this.width - 12, 2);
-                ctx.fillRect(this.x + 10, this.y + 24, this.width - 20, 2);
-                break;
-
-            case 'classmate':
-                // Hoodie (Torso)
-                ctx.fillStyle = '#78909c'; // Blue-grey hoodie
-                ctx.fillRect(this.x + 6, this.y + 16, 20, 28);
-                
-                // Jeans (Legs)
-                ctx.fillStyle = '#3f51b5'; // Blue jeans
-                ctx.fillRect(this.x + 8, this.y + 44, 7, 26);
-                ctx.fillRect(this.x + 17, this.y + 44, 7, 26);
-                
-                // Head
-                ctx.fillStyle = '#ffdbb5'; // Skin color
-                ctx.fillRect(this.x + 8, this.y + 2, 16, 14);
-                
-                // Hair/Hood top
-                ctx.fillStyle = '#546e7a'; // Hood outline
-                ctx.fillRect(this.x + 6, this.y, 20, 4);
-                ctx.fillRect(this.x + 6, this.y, 4, 16);
-                ctx.fillRect(this.x + 22, this.y, 4, 16);
-                
-                // Staring down head tilt (face features looking down)
-                ctx.fillStyle = '#263238'; // Downcast eyes
-                ctx.fillRect(this.x + 10, this.y + 8, 3, 2);
-                
-                // Glowing smartphone in hands
-                ctx.fillStyle = '#ffdbb5'; // Hands
-                ctx.fillRect(this.x + 18, this.y + 26, 6, 6);
-                ctx.fillStyle = '#00e5ff'; // Glowing cyan screen
-                ctx.fillRect(this.x + 22, this.y + 22, 6, 8);
-                // Screen glow overlay
-                ctx.fillStyle = 'rgba(0, 229, 255, 0.15)';
-                ctx.beginPath();
-                ctx.arc(this.x + 25, this.y + 26, 12, 0, Math.PI * 2);
-                ctx.fill();
-                break;
-
-            case 'wetsign':
-                // Yellow plastic body
-                ctx.fillStyle = '#ffeb3b'; // Warning yellow
-                ctx.beginPath();
-                ctx.moveTo(this.x + 6, this.y + this.height);
-                ctx.lineTo(this.x + 12, this.y);
-                ctx.lineTo(this.x + 18, this.y);
-                ctx.lineTo(this.x + 24, this.y + this.height);
-                ctx.closePath();
-                ctx.fill();
-                
-                // Black hinge at top
-                ctx.fillStyle = '#212121';
-                ctx.fillRect(this.x + 12, this.y, 6, 3);
-                
-                // CAUTION sign graphics
-                ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(this.x + 15, this.y + 10);
-                ctx.lineTo(this.x + 10, this.y + 32);
-                ctx.lineTo(this.x + 20, this.y + 32);
-                ctx.closePath();
-                ctx.stroke();
-                
-                // Slipping man figure (caution figure detail)
-                ctx.fillStyle = '#d32f2f'; // Red warning sign mark
-                ctx.fillRect(this.x + 14, this.y + 16, 2, 8);
-                ctx.fillRect(this.x + 14, this.y + 26, 2, 2);
-                break;
-
-            case 'peer':
-                if (isPeerLoaded && transparentPeerCanvas) {
-                    const cellW = peerImage.width / 4;
-                    const cellH = peerImage.height / 2;
-                    ctx.drawImage(
-                        transparentPeerCanvas,
-                        this.peerIndexX * cellW, this.peerIndexY * cellH, cellW, cellH,
-                        this.x, this.y, this.width, this.height
-                    );
-                } else {
-                    ctx.fillStyle = '#ff8a80';
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                }
-                break;
-
-            case 'security':
-                if (isSecurityLoaded && transparentSecurityCanvas) {
-                    ctx.drawImage(transparentSecurityCanvas, this.x, this.y, this.width, this.height);
-                } else {
-                    ctx.fillStyle = '#90a4ae';
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                }
-                break;
-
-            case 'placement_flyer':
-                // A flyer sheet of paper folded or flat with bold red text
-                ctx.fillStyle = '#f5f5f5'; // slightly off-white paper
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                // Draw outline
-                ctx.strokeStyle = '#c62828'; // red border outline
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(this.x, this.y, this.width, this.height);
-                
-                // Bold red text: "INFO" and "FLYER"
-                ctx.fillStyle = '#d32f2f';
-                ctx.font = 'bold 5px "Press Start 2P"';
-                ctx.fillText("INFO", this.x + 3, this.y + 10);
-                ctx.fillText("FLYER", this.x + 2, this.y + 20);
-                break;
-
-            case 'resume':
-                // Drawing a white resume sheet with small lines of text and a tiny blue photo box
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                // Draw outline
-                ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(this.x, this.y, this.width, this.height);
-                
-                // Draw a tiny blue photo box
-                ctx.fillStyle = '#29b6f6';
-                ctx.fillRect(this.x + this.width - 9, this.y + 3, 6, 8);
-                
-                // Draw lines representing text
-                ctx.fillStyle = '#212121';
-                ctx.fillRect(this.x + 3, this.y + 4, 10, 2);
-                ctx.fillRect(this.x + 3, this.y + 8, 8, 2);
-                ctx.fillRect(this.x + 3, this.y + 13, 16, 1.5);
-                ctx.fillRect(this.x + 3, this.y + 16, 16, 1.5);
-                ctx.fillRect(this.x + 3, this.y + 19, 14, 1.5);
-                break;
-
-            case 'sharma':
-                // Sharma Sir: Angry external Examiner
-                ctx.fillStyle = '#3f51b5'; // Blue Shirt
-                ctx.fillRect(this.x + 8, this.y + 15, 20, 25);
-                ctx.fillStyle = '#212121'; // Grey Pants
-                ctx.fillRect(this.x + 8, this.y + 40, 20, 30);
-                ctx.fillStyle = '#ffdbb5'; // Head
-                ctx.fillRect(this.x + 10, this.y, 16, 16);
-                ctx.fillStyle = '#5d4037'; // Hair
-                ctx.fillRect(this.x + 8, this.y, 20, 4);
-                ctx.fillStyle = '#fff'; // Specs
-                ctx.fillRect(this.x + 11, this.y + 5, 14, 3);
-                ctx.fillStyle = '#ff007f'; // Red tie
-                ctx.fillRect(this.x + 17, this.y + 15, 2, 12);
-                break;
-
-            case 'bug':
-                // Floating Bug error banner — bright red/yellow for visibility on any background
-                ctx.fillStyle = '#c62828'; // solid dark red background
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                ctx.strokeStyle = '#ff1744';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(this.x, this.y, this.width, this.height);
-                // Warning stripes on top
-                ctx.fillStyle = '#fff176';
-                for (let xi = 0; xi < this.width; xi += 10) {
-                    ctx.fillRect(this.x + xi, this.y, 5, 4);
-                }
-                // Bug name text
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '6px "Press Start 2P"';
-                ctx.fillText(this.bugText, this.x + 5, this.y + 20);
-                // Blinking danger indicator
-                if (Math.floor(Date.now() / 200) % 2 === 0) {
-                    ctx.fillStyle = '#ff1744';
-                    ctx.fillRect(this.x + this.width - 12, this.y + 6, 8, 8);
-                } else {
-                    ctx.fillStyle = '#fff176';
-                    ctx.fillRect(this.x + this.width - 12, this.y + 6, 8, 8);
-                }
-                break;
-
-            case 'pothole':
-                // Pothole on road with visible orange warning border
-                ctx.fillStyle = '#1a1a2e'; // Dark deep hole
-                ctx.beginPath();
-                ctx.ellipse(this.x + 28, this.y + 8, 28, 8, 0, 0, Math.PI * 2);
-                ctx.fill();
-                // Warning rim
-                ctx.strokeStyle = '#ff8f00';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.ellipse(this.x + 28, this.y + 8, 28, 8, 0, 0, Math.PI * 2);
-                ctx.stroke();
-                // Hazard lines inside
-                ctx.strokeStyle = '#ffd54f';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(this.x + 15, this.y + 8);
-                ctx.lineTo(this.x + 41, this.y + 8);
-                ctx.stroke();
-                break;
-
-            case 'trashcan':
-                // Green pixel art trash can
-                ctx.fillStyle = '#388e3c'; // dark green body
-                ctx.fillRect(this.x + 4, this.y + 8, 24, 37);
-                ctx.fillStyle = '#4caf50'; // lighter green rim/lid
-                ctx.fillRect(this.x, this.y, 32, 8);
-                // Vertical ridges
-                ctx.fillStyle = '#2e7d32'; 
-                ctx.fillRect(this.x + 8, this.y + 12, 2, 30);
-                ctx.fillRect(this.x + 15, this.y + 12, 2, 30);
-                ctx.fillRect(this.x + 22, this.y + 12, 2, 30);
-                // Trash overflowing (apple core / paper)
-                ctx.fillStyle = '#e0e0e0'; // paper
-                ctx.fillRect(this.x + 18, this.y - 4, 8, 6);
-                ctx.fillStyle = '#d32f2f'; // apple
-                ctx.fillRect(this.x + 6, this.y - 6, 6, 8);
-                break;
-
-            // Collectibles
-            case 'chai':
-                // Steaming Chai Glass
-                ctx.fillStyle = '#f5c242'; // Tea color
-                ctx.fillRect(this.x + 4, this.y + 8, 14, 14);
-                ctx.fillStyle = '#fff'; // Glass rim
-                ctx.fillRect(this.x + 2, this.y + 5, 18, 3);
-                // Steam particles
-                ctx.fillStyle = 'rgba(255,255,255,0.4)';
-                if (Math.floor(Date.now() / 150) % 2 === 0) {
-                    ctx.fillRect(this.x + 6, this.y - 2, 2, 4);
-                    ctx.fillRect(this.x + 12, this.y - 4, 2, 4);
-                } else {
-                    ctx.fillRect(this.x + 8, this.y - 4, 2, 4);
-                    ctx.fillRect(this.x + 14, this.y - 2, 2, 4);
-                }
-                break;
-
-            case 'sheet':
-                // Attendance Sheet
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                ctx.fillStyle = '#39ff14'; // Grade green
-                ctx.font = 'bold 8px Arial';
-                ctx.fillText("75%", this.x + 1, this.y + 16);
-                break;
-
-            case 'commit':
-                // Green Git Commit
-                ctx.fillStyle = '#39ff14';
-                ctx.shadowColor = '#39ff14';
-                ctx.shadowBlur = 10;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                // Inner core
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(this.x + 4, this.y + 4, this.width - 8, this.height - 8);
-                break;
-
-            case 'magnet':
-                // Orange StackOverflow WiFi Magnet
-                ctx.fillStyle = '#ff8f3b';
-                ctx.shadowColor = '#ff8f3b';
-                ctx.shadowBlur = 10;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                ctx.fillStyle = '#fff';
-                ctx.fillRect(this.x + 4, this.y + 6, 14, 4);
-                ctx.fillRect(this.x + 4, this.y + 12, 14, 4);
-                break;
-            case 'laser':
-                ctx.save();
-                ctx.shadowColor = this.laserColor;
-                ctx.shadowBlur = 15;
-                ctx.fillStyle = this.laserColor;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                // Laser core white stripe
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(this.x, this.y + 1, this.width, this.height - 2);
-                ctx.restore();
-                
-                // Question Text
-                ctx.fillStyle = '#ff007f';
-                ctx.font = '5px "Press Start 2P"';
-                ctx.fillText(this.questionText, this.x + 10, this.y - 6);
-                break;
-            case 'answer':
-                ctx.fillStyle = '#1b2b20';
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                ctx.strokeStyle = '#a3be8c';
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(this.x, this.y, this.width, this.height);
-                
-                ctx.fillStyle = '#8fbcbb';
-                ctx.font = '5px "Press Start 2P"';
-                ctx.fillText(this.answerText, this.x + 8, this.y + 15);
-                break;
-        }
-
-        ctx.restore();
-    }
-}
-
 let items = [];
 let itemSpawnTimer = 0;
 let cloudsArray = [];
@@ -2060,11 +843,11 @@ function spawnItems() {
             const qaIndex = Math.floor(Math.random() * VIVA_QA.length);
             const pair = VIVA_QA[qaIndex];
             
-            const laserItem = new GameItem('laser', canvas.width - 160, 0, 1.4);
+            const laserItem = acquireItem('laser', canvas.width - 160, 0, 1.4);
             laserItem.qaPair = pair;
             laserItem.questionText = pair.q;
             
-            const answerItem = new GameItem('answer', canvas.width + 50, 0, 1.1, pair.a);
+            const answerItem = acquireItem('answer', canvas.width + 50, 0, 1.1, pair.a);
             
             items.push(laserItem);
             items.push(answerItem);
@@ -2085,7 +868,7 @@ function spawnItems() {
                     // Street obstacles
                     obsType = ['dog', 'cow', 'auto', 'sharma', 'bug', 'pothole', 'trashcan'][Math.floor(Math.random() * 7)];
                 }
-                newItem = new GameItem(obsType, canvas.width + 50, 0);
+                newItem = acquireItem(obsType, canvas.width + 50, 0);
             } else if (rand < 0.85) {
                 // Spawning Collectibles
                 let colType;
@@ -2098,7 +881,7 @@ function spawnItems() {
                     colType = ['chai', 'sheet', 'commit', 'magnet'][Math.floor(Math.random() * 4)];
                 }
                 const spawnY = player.groundY - 30 - Math.random() * 100; // Floating height
-                newItem = new GameItem(colType, canvas.width + 50, spawnY);
+                newItem = acquireItem(colType, canvas.width + 50, spawnY);
             }
         }
         
@@ -2110,64 +893,6 @@ function spawnItems() {
         }
         // Random intervals, speeds up as game goes on
         itemSpawnTimer = Math.max(40, 110 - Math.floor(distance / 50)) + Math.random() * 60;
-    }
-}
-
-// --- Dynamic Particle Systems ---
-class Particle {
-    constructor(x, y, color, size, vx, vy, gravity = 0.1, life = 30) {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.size = size;
-        this.vx = vx;
-        this.vy = vy;
-        this.gravity = gravity;
-        this.life = life;
-        this.maxLife = life;
-    }
-
-    update() {
-        this.vy += this.gravity;
-        this.x += this.vx;
-        this.y += this.vy;
-        this.life--;
-    }
-
-    draw() {
-        ctx.fillStyle = this.color;
-        ctx.globalAlpha = this.life / this.maxLife;
-        ctx.fillRect(this.x, this.y, this.size, this.size);
-        ctx.globalAlpha = 1;
-    }
-}
-
-let particles = [];
-
-function spawnDust(x, y, count = 4) {
-    for (let i = 0; i < count; i++) {
-        particles.push(new Particle(
-            x, y - 5,
-            'rgba(180, 160, 180, 0.4)',
-            3 + Math.random() * 4,
-            -1 - Math.random() * 2,
-            -Math.random() * 2,
-            0.05,
-            15 + Math.random() * 15
-        ));
-    }
-}
-
-function spawnCollectSparks(x, y, color) {
-    for (let i = 0; i < 8; i++) {
-        particles.push(new Particle(
-            x, y, color,
-            3 + Math.random() * 3,
-            (Math.random() - 0.5) * 6,
-            (Math.random() - 0.5) * 6,
-            0.05,
-            20 + Math.random() * 20
-        ));
     }
 }
 
@@ -2557,7 +1282,7 @@ function updateGame() {
     updateCloudsAndBirds();
 
     // Update active obstacles and collectibles
-    items.forEach(item => item.update());
+    items.forEach(item => item.update(gameSpeed, currentLevel, magnetTimer, player));
     items = items.filter(item => !item.markedForDeletion);
 
     // Collision check
@@ -2897,13 +1622,13 @@ function drawGame() {
     drawRoad();
 
     // Draw items (obstacles, collectibles)
-    items.forEach(item => item.draw());
+    items.forEach(item => item.draw(ctx, isDogImageLoaded, transparentDogCanvas, isCowImageLoaded, transparentCowCanvas, isPeerLoaded, transparentPeerCanvas, isSecurityLoaded, transparentSecurityCanvas));
 
     // Draw particles (dust, sparks)
-    particles.forEach(p => p.draw());
+    particles.forEach(p => p.draw(ctx));
 
     // Draw player Vardhan
-    player.draw();
+    player.draw(ctx, transparentSpriteCanvas, isSpriteSheetLoaded, SPRITE_MAP, invincibilityTimer, gameState);
 }
 
 function gameLoop() {
