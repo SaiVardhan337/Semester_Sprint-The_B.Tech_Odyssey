@@ -1942,21 +1942,25 @@ function updateCampaignUI() {
 }
 
 if (campaignBtnCommute) {
-    campaignBtnCommute.addEventListener('click', (e) => {
+    const selectCommute = (e) => {
         e.stopPropagation();
         selectedCampaign = 'commute';
         localStorage.setItem('btech-campaign', 'commute');
         updateCampaignUI();
-    });
+    };
+    campaignBtnCommute.addEventListener('click', selectCommute);
+    campaignBtnCommute.addEventListener('touchstart', selectCommute, { passive: false });
 }
 
 if (campaignBtnPlacement) {
-    campaignBtnPlacement.addEventListener('click', (e) => {
+    const selectPlacement = (e) => {
         e.stopPropagation();
         selectedCampaign = 'placement';
         localStorage.setItem('btech-campaign', 'placement');
         updateCampaignUI();
-    });
+    };
+    campaignBtnPlacement.addEventListener('click', selectPlacement);
+    campaignBtnPlacement.addEventListener('touchstart', selectPlacement, { passive: false });
 }
 
 updateCampaignUI();
