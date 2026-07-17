@@ -2849,7 +2849,7 @@ window.addEventListener('keydown', (e) => {
             dismissNotif();
         } else if (gameState === 'PLAYING') {
             player.jump();
-        } else if (gameState === 'MENU') {
+        } else if (gameState === 'MENU' && e.code === 'Space') {
             startGame();
         } else if (gameState === 'WIN') {
             if (currentLevel === 1) {
@@ -2877,9 +2877,24 @@ window.addEventListener('keydown', (e) => {
     }
     
     if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-        e.preventDefault();
         if (gameState === 'PLAYING') {
+            e.preventDefault();
             player.slide();
+        }
+    }
+
+    // Campaign Selector cycling on Menu Screen
+    if (gameState === 'MENU') {
+        if (e.code === 'ArrowLeft' || e.code === 'ArrowUp' || e.code === 'KeyA' || e.code === 'KeyW') {
+            e.preventDefault();
+            selectedCampaign = 'commute';
+            localStorage.setItem('btech-campaign', 'commute');
+            updateCampaignUI();
+        } else if (e.code === 'ArrowRight' || e.code === 'ArrowDown' || e.code === 'KeyD' || e.code === 'KeyS') {
+            e.preventDefault();
+            selectedCampaign = 'placement';
+            localStorage.setItem('btech-campaign', 'placement');
+            updateCampaignUI();
         }
     }
 
@@ -2897,7 +2912,7 @@ const crtScreen = document.querySelector('.crt-screen');
 
 crtScreen.addEventListener('touchstart', (e) => {
     // Ignore touches on interactive buttons/links
-    if (e.target.closest('.control-btn') || e.target.closest('button') || e.target.closest('a')) return;
+    if (e.target.closest('.control-btn') || e.target.closest('button') || e.target.closest('a') || e.target.closest('.campaign-option-card')) return;
     
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
@@ -2919,7 +2934,7 @@ crtScreen.addEventListener('touchstart', (e) => {
 
 crtScreen.addEventListener('touchend', (e) => {
     // Ignore touches on interactive buttons/links
-    if (e.target.closest('.control-btn') || e.target.closest('button') || e.target.closest('a')) return;
+    if (e.target.closest('.control-btn') || e.target.closest('button') || e.target.closest('a') || e.target.closest('.campaign-option-card')) return;
     if (gameState !== 'PLAYING') return;
 
     const diffX = e.changedTouches[0].clientX - touchStartX;
