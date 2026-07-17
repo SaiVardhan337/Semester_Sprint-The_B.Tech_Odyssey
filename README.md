@@ -1,15 +1,15 @@
-# Viva or Void 🏃‍♂️🎓
+# Semester Sprint: The B.Tech Odyssey 🏃‍♂️🎓
 
 [![HTML5 Canvas](https://img.shields.io/badge/Engine-HTML5%20Canvas-orange.svg?style=for-the-badge&logo=html5)](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 [![Vanilla JS](https://img.shields.io/badge/Code-Vanilla%20JS-yellow.svg?style=for-the-badge&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Web Audio API](https://img.shields.io/badge/Audio-Web%20Audio%20API-blue.svg?style=for-the-badge&logo=webassembly)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**Viva or Void** is a level-based 2D side-scrolling retro runner game built entirely using **HTML Canvas**, **Vanilla JavaScript**, and **CSS3**. The game follows the morning commute of a B.Tech student running late for a crucial DAA (Design and Analysis of Algorithms) Viva exam. 
+**Semester Sprint: The B.Tech Odyssey** is a level-based 2D side-scrolling retro runner game built entirely using **HTML Canvas**, **Vanilla JavaScript**, and **CSS3**. The game follows the morning commute of a B.Tech student running late for a crucial DAA (Design and Analysis of Algorithms) Viva exam. 
 
 The player must navigate complex streets, dodge campus hazards, maintain a passing attendance rate, and face the ultimate boss: the Examiner, in a real-time classroom Viva Q&A showdown.
 
-![Viva or Void Gameplay](assets/screenshot.png)
+![Semester Sprint: The B.Tech Odyssey Gameplay](assets/screenshot.png)
 
 ---
 
