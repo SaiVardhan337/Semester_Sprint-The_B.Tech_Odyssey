@@ -108,4 +108,3 @@ python3 -m http.server 8000
 # Node.js (via http-server)
 npx http-server . -p 8000
 ```
-Open `http://localhost:8000` in your browser.
