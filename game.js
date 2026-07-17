@@ -114,6 +114,12 @@ gardensBgImage.src = 'assets/gardens_bg.jpg';
 let isGardensBgLoaded = false;
 gardensBgImage.onload = () => { isGardensBgLoaded = true; };
 
+// Level 4 Campus Greenery Background (appears after 250m)
+const campusGreeneryBgImage = new Image();
+campusGreeneryBgImage.src = 'assets/campus_greenery_bg.jpg';
+let isCampusGreeneryBgLoaded = false;
+campusGreeneryBgImage.onload = () => { isCampusGreeneryBgLoaded = true; };
+
 // Level 4 Peer Blocker Image
 const peerImage = new Image();
 peerImage.src = 'assets/peer.jpg';
@@ -1423,7 +1429,7 @@ class GameItem {
             case 'placement_flyer':
                 this.width = 30;
                 this.height = 30;
-                this.y = player.groundY - 60 - Math.random() * 40;
+                this.y = player.groundY - 10 - Math.random() * 30;
                 break;
             case 'resume':
                 this.width = 24;
@@ -2488,7 +2494,7 @@ function updateGame() {
     let winDistance = 1000;
     if (currentLevel === 2) winDistance = 250;
     else if (currentLevel === 3) winDistance = 300;
-    else if (currentLevel === 4) winDistance = 1000;
+    else if (currentLevel === 4) winDistance = 500;
 
     if (distance >= winDistance) {
         distance = winDistance;
@@ -2764,11 +2770,14 @@ function drawGame() {
         const bgHeight = player.groundY + 10; // 270px
         
         if (currentLevel === 4) {
-            // Draw Level 4 scrolling gardens backdrop
+            // Draw Level 4 scrolling backdrop - switches at 250m
             const bgScroll = (distance * 20) % canvas.width;
-            if (isGardensBgLoaded) {
-                ctx.drawImage(gardensBgImage, -bgScroll, 0, canvas.width, bgHeight);
-                ctx.drawImage(gardensBgImage, canvas.width - bgScroll, 0, canvas.width, bgHeight);
+            const useSecondBg = distance >= 250;
+            const activeBgImg = useSecondBg ? campusGreeneryBgImage : gardensBgImage;
+            const activeBgLoaded = useSecondBg ? isCampusGreeneryBgLoaded : isGardensBgLoaded;
+            if (activeBgLoaded) {
+                ctx.drawImage(activeBgImg, -bgScroll, 0, canvas.width, bgHeight);
+                ctx.drawImage(activeBgImg, canvas.width - bgScroll, 0, canvas.width, bgHeight);
             } else {
                 ctx.fillStyle = '#b8e6d0';
                 ctx.fillRect(0, 0, canvas.width, bgHeight);
