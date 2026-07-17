@@ -69,14 +69,13 @@ const SPRITE_MAP = {
 
 // Character Spritesheet Setup (Varsity Jacket Hero)
 const spriteSheet = new Image();
-spriteSheet.src = 'assets/vardhan_spritesheet.jpg';
 let isSpriteSheetLoaded = false;
 let transparentSpriteCanvas = null;
-
 spriteSheet.onload = () => {
     isSpriteSheetLoaded = true;
     processSpriteSheet();
 };
+spriteSheet.src = 'assets/vardhan_spritesheet.jpg';
 
 function processSpriteSheet() {
     transparentSpriteCanvas = document.createElement('canvas');
@@ -115,55 +114,55 @@ function processSpriteSheet() {
 
 // Level 4 Gardens Background Image
 const gardensBgImage = new Image();
-gardensBgImage.src = 'assets/gardens_bg.jpg';
 let isGardensBgLoaded = false;
 gardensBgImage.onload = () => { isGardensBgLoaded = true; };
+gardensBgImage.src = 'assets/gardens_bg.jpg';
 
 // Level 4 Campus Greenery Background (appears after 250m)
 const campusGreeneryBgImage = new Image();
-campusGreeneryBgImage.src = 'assets/campus_greenery_bg.jpg';
 let isCampusGreeneryBgLoaded = false;
 campusGreeneryBgImage.onload = () => { isCampusGreeneryBgLoaded = true; };
+campusGreeneryBgImage.src = 'assets/campus_greenery_bg.jpg';
 
 // Level 4 Peer Blocker Image
 const peerImage = new Image();
-peerImage.src = 'assets/peer.png';
 let isPeerLoaded = false;
 let transparentPeerCanvas = null;
 peerImage.onload = () => {
     isPeerLoaded = true;
     processPeerImage();
 };
+peerImage.src = 'assets/peer.png';
 
 // Level 4 Security Guard Image
 const securityImage = new Image();
-securityImage.src = 'assets/security.png';
 let isSecurityLoaded = false;
 let transparentSecurityCanvas = null;
 securityImage.onload = () => {
     isSecurityLoaded = true;
     processSecurityImage();
 };
+securityImage.src = 'assets/security.png';
 
 // Level 4 Resume Collectible Image
 const resumeImage = new Image();
-resumeImage.src = 'assets/resume.jpg';
 let isResumeLoaded = false;
 let transparentResumeCanvas = null;
 resumeImage.onload = () => {
     isResumeLoaded = true;
     processResumeImage();
 };
+resumeImage.src = 'assets/resume.jpg';
 
 // Level 4 Flyer Obstacle Image
 const flyerImage = new Image();
-flyerImage.src = 'assets/placement_flyer.jpg';
 let isFlyerLoaded = false;
 let transparentFlyerCanvas = null;
 flyerImage.onload = () => {
     isFlyerLoaded = true;
     processFlyerImage();
 };
+flyerImage.src = 'assets/placement_flyer.jpg';
 
 function processPeerImage() {
     transparentPeerCanvas = document.createElement('canvas');
@@ -243,52 +242,47 @@ function processFlyerImage() {
 
 // Dog Sprite Setup (Light background transparency filter)
 const dogImage = new Image();
-dogImage.src = 'assets/dog.png';
 let isDogImageLoaded = false;
 let transparentDogCanvas = null;
+dogImage.onload = () => {
+    isDogImageLoaded = true;
+    processDogImage();
+};
+dogImage.src = 'assets/dog.png';
 
 // Cow Sprite Setup (Light background transparency filter)
 const cowImage = new Image();
-cowImage.src = 'assets/cow.png';
 let isCowImageLoaded = false;
 let transparentCowCanvas = null;
+cowImage.onload = () => {
+    isCowImageLoaded = true;
+    processCowImage();
+};
+cowImage.src = 'assets/cow.png';
 
 // (Old classroom image logic removed)
 
 // Corridor Background Image (Level 2, 0 to 450m)
 const corridorImage = new Image();
-corridorImage.src = 'assets/corridor.jpg';
 let isCorridorLoaded = false;
 corridorImage.onload = () => { isCorridorLoaded = true; };
+corridorImage.src = 'assets/corridor.jpg';
 
 // Level 3 Classroom Lab Background Image
 const classroomLevel3Image = new Image();
-classroomLevel3Image.src = 'assets/classroom_level3.png';
 let isClassroomLevel3Loaded = false;
 classroomLevel3Image.onload = () => { isClassroomLevel3Loaded = true; };
+classroomLevel3Image.src = 'assets/classroom_level3.png';
 
 // Professor Boss Sprite Image
 const professorImage = new Image();
-professorImage.src = 'assets/professor.png';
 let isProfessorLoaded = false;
 let transparentProfessorCanvas = null;
-
-
-
-dogImage.onload = () => {
-    isDogImageLoaded = true;
-    processDogImage();
-};
-
-cowImage.onload = () => {
-    isCowImageLoaded = true;
-    processCowImage();
-};
-
 professorImage.onload = () => {
     isProfessorLoaded = true;
     processProfessorImage();
 };
+professorImage.src = 'assets/professor.png';
 
 function processProfessorImage() {
     transparentProfessorCanvas = document.createElement('canvas');
