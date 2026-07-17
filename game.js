@@ -85,27 +85,32 @@ function processSpriteSheet() {
     const tempCtx = transparentSpriteCanvas.getContext('2d');
     tempCtx.drawImage(spriteSheet, 0, 0);
 
-    const imgData = tempCtx.getImageData(0, 0, spriteSheet.width, spriteSheet.height);
-    const data = imgData.data;
+    try {
+        const imgData = tempCtx.getImageData(0, 0, spriteSheet.width, spriteSheet.height);
+        const data = imgData.data;
 
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        
-        // If it's near-white, make it transparent
-        if (r > 230 && g > 230 && b > 230) {
-            data[i + 3] = 0;
-        } else {
-            // Lighten skin tones to match fair skin tone requirement
-            if (r > 120 && g > 70 && b > 40 && r > g && g > b && r - b > 30 && r < 220) {
-                data[i]     = Math.min(255, r + 100);
-                data[i + 1] = Math.min(255, g + 90);
-                data[i + 2] = Math.min(255, b + 80);
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            // If it's near-white, make it transparent
+            if (r > 230 && g > 230 && b > 230) {
+                data[i + 3] = 0;
+            } else {
+                // Lighten skin tones to match fair skin tone requirement
+                if (r > 120 && g > 70 && b > 40 && r > g && g > b && r - b > 30 && r < 220) {
+                    data[i]     = Math.min(255, r + 100);
+                    data[i + 1] = Math.min(255, g + 90);
+                    data[i + 2] = Math.min(255, b + 80);
+                }
             }
         }
+        tempCtx.putImageData(imgData, 0, 0);
+    } catch (e) {
+        console.warn("Local CORS security policy blocked canvas pixel manipulation. Falling back to raw image.", e);
+        tempCtx.drawImage(spriteSheet, 0, 0);
     }
-    tempCtx.putImageData(imgData, 0, 0);
 }
 
 // Level 4 Gardens Background Image
@@ -166,12 +171,17 @@ function processPeerImage() {
     transparentPeerCanvas.height = peerImage.height;
     const tempCtx = transparentPeerCanvas.getContext('2d');
     tempCtx.drawImage(peerImage, 0, 0);
-    const imgData = tempCtx.getImageData(0, 0, peerImage.width, peerImage.height);
-    const data = imgData.data;
-    for (let i = 0; i < data.length; i += 4) {
-        if (data[i] > 210 && data[i + 1] > 210 && data[i + 2] > 210) data[i + 3] = 0;
+    try {
+        const imgData = tempCtx.getImageData(0, 0, peerImage.width, peerImage.height);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i] > 210 && data[i + 1] > 210 && data[i + 2] > 210) data[i + 3] = 0;
+        }
+        tempCtx.putImageData(imgData, 0, 0);
+    } catch (e) {
+        console.warn("Local CORS security policy blocked peer image manipulation. Using raw image.", e);
+        tempCtx.drawImage(peerImage, 0, 0);
     }
-    tempCtx.putImageData(imgData, 0, 0);
 }
 
 function processSecurityImage() {
@@ -180,12 +190,17 @@ function processSecurityImage() {
     transparentSecurityCanvas.height = securityImage.height;
     const tempCtx = transparentSecurityCanvas.getContext('2d');
     tempCtx.drawImage(securityImage, 0, 0);
-    const imgData = tempCtx.getImageData(0, 0, securityImage.width, securityImage.height);
-    const data = imgData.data;
-    for (let i = 0; i < data.length; i += 4) {
-        if (data[i] > 210 && data[i + 1] > 210 && data[i + 2] > 210) data[i + 3] = 0;
+    try {
+        const imgData = tempCtx.getImageData(0, 0, securityImage.width, securityImage.height);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i] > 210 && data[i + 1] > 210 && data[i + 2] > 210) data[i + 3] = 0;
+        }
+        tempCtx.putImageData(imgData, 0, 0);
+    } catch (e) {
+        console.warn("Local CORS security policy blocked security image manipulation. Using raw image.", e);
+        tempCtx.drawImage(securityImage, 0, 0);
     }
-    tempCtx.putImageData(imgData, 0, 0);
 }
 
 function processResumeImage() {
@@ -194,12 +209,17 @@ function processResumeImage() {
     transparentResumeCanvas.height = resumeImage.height;
     const tempCtx = transparentResumeCanvas.getContext('2d');
     tempCtx.drawImage(resumeImage, 0, 0);
-    const imgData = tempCtx.getImageData(0, 0, resumeImage.width, resumeImage.height);
-    const data = imgData.data;
-    for (let i = 0; i < data.length; i += 4) {
-        if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+    try {
+        const imgData = tempCtx.getImageData(0, 0, resumeImage.width, resumeImage.height);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+        }
+        tempCtx.putImageData(imgData, 0, 0);
+    } catch (e) {
+        console.warn("Local CORS security policy blocked resume image manipulation. Using raw image.", e);
+        tempCtx.drawImage(resumeImage, 0, 0);
     }
-    tempCtx.putImageData(imgData, 0, 0);
 }
 
 function processFlyerImage() {
@@ -208,12 +228,17 @@ function processFlyerImage() {
     transparentFlyerCanvas.height = flyerImage.height;
     const tempCtx = transparentFlyerCanvas.getContext('2d');
     tempCtx.drawImage(flyerImage, 0, 0);
-    const imgData = tempCtx.getImageData(0, 0, flyerImage.width, flyerImage.height);
-    const data = imgData.data;
-    for (let i = 0; i < data.length; i += 4) {
-        if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+    try {
+        const imgData = tempCtx.getImageData(0, 0, flyerImage.width, flyerImage.height);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+        }
+        tempCtx.putImageData(imgData, 0, 0);
+    } catch (e) {
+        console.warn("Local CORS security policy blocked flyer image manipulation. Using raw image.", e);
+        tempCtx.drawImage(flyerImage, 0, 0);
     }
-    tempCtx.putImageData(imgData, 0, 0);
 }
 
 // Dog Sprite Setup (Light background transparency filter)
@@ -272,19 +297,24 @@ function processProfessorImage() {
     const tempCtx = transparentProfessorCanvas.getContext('2d');
     tempCtx.drawImage(professorImage, 0, 0);
 
-    const imgData = tempCtx.getImageData(0, 0, professorImage.width, professorImage.height);
-    const data = imgData.data;
+    try {
+        const imgData = tempCtx.getImageData(0, 0, professorImage.width, professorImage.height);
+        const data = imgData.data;
 
-    // Filter white pixels (RGB close to 255)
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        if (r > 240 && g > 240 && b > 240) {
-            data[i + 3] = 0;
+        // Filter white pixels (RGB close to 255)
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            if (r > 240 && g > 240 && b > 240) {
+                data[i + 3] = 0;
+            }
         }
+        tempCtx.putImageData(imgData, 0, 0);
+    } catch (e) {
+        console.warn("Local CORS security policy blocked professor image manipulation. Using raw image.", e);
+        tempCtx.drawImage(professorImage, 0, 0);
     }
-    tempCtx.putImageData(imgData, 0, 0);
 }
 
 function processDogImage() {
@@ -294,19 +324,24 @@ function processDogImage() {
     const tempCtx = transparentDogCanvas.getContext('2d');
     tempCtx.drawImage(dogImage, 0, 0);
 
-    const imgData = tempCtx.getImageData(0, 0, dogImage.width, dogImage.height);
-    const data = imgData.data;
+    try {
+        const imgData = tempCtx.getImageData(0, 0, dogImage.width, dogImage.height);
+        const data = imgData.data;
 
-    // Filter white pixels (RGB close to 255)
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        if (r > 240 && g > 240 && b > 240) {
-            data[i + 3] = 0;
+        // Filter white pixels (RGB close to 255)
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            if (r > 240 && g > 240 && b > 240) {
+                data[i + 3] = 0;
+            }
         }
+        tempCtx.putImageData(imgData, 0, 0);
+    } catch (e) {
+        console.warn("Local CORS security policy blocked dog image manipulation. Using raw image.", e);
+        tempCtx.drawImage(dogImage, 0, 0);
     }
-    tempCtx.putImageData(imgData, 0, 0);
 }
 
 function processCowImage() {
@@ -316,19 +351,24 @@ function processCowImage() {
     const tempCtx = transparentCowCanvas.getContext('2d');
     tempCtx.drawImage(cowImage, 0, 0);
 
-    const imgData = tempCtx.getImageData(0, 0, cowImage.width, cowImage.height);
-    const data = imgData.data;
+    try {
+        const imgData = tempCtx.getImageData(0, 0, cowImage.width, cowImage.height);
+        const data = imgData.data;
 
-    // Filter white pixels (RGB close to 255)
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        if (r > 240 && g > 240 && b > 240) {
-            data[i + 3] = 0;
+        // Filter white pixels (RGB close to 255)
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            if (r > 240 && g > 240 && b > 240) {
+                data[i + 3] = 0;
+            }
         }
+        tempCtx.putImageData(imgData, 0, 0);
+    } catch (e) {
+        console.warn("Local CORS security policy blocked cow image manipulation. Using raw image.", e);
+        tempCtx.drawImage(cowImage, 0, 0);
     }
-    tempCtx.putImageData(imgData, 0, 0);
 }
 
 
