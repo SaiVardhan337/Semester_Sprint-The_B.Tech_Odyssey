@@ -273,7 +273,9 @@ body {
 /* Keep buttons and interactive elements clickable */
 .screen-overlay button,
 .screen-overlay a,
-.screen-overlay .sharma-remark-box {
+.screen-overlay .sharma-remark-box,
+.screen-overlay .campaign-option-card,
+.screen-overlay .campaign-selector-container {
     pointer-events: auto;
 }
 
@@ -1261,5 +1263,32 @@ body.dark-theme .coin-light {
     }
     .campaign-name {
         font-size: 9px;
+    }
+}
+
+/* Quick toggle button styling for mobile users */
+.campaign-mobile-toggle-btn {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .campaign-mobile-toggle-btn {
+        display: inline-block;
+        margin-top: 8px;
+        background: var(--neon-pink);
+        color: white;
+        border: 2px solid white;
+        border-radius: 4px;
+        padding: 6px 14px;
+        font-family: 'Press Start 2P', monospace;
+        font-size: 7px;
+        cursor: pointer;
+        text-shadow: 1px 1px 0px black;
+        box-shadow: 0 3px 0px #b00050;
+        transition: all 0.1s ease;
+    }
+    .campaign-mobile-toggle-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 1px 0px #b00050;
     }
 }

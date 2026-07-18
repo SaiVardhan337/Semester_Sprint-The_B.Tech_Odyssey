@@ -1982,4 +1982,20 @@ if (campaignBtnPlacement) {
     campaignBtnPlacement.addEventListener('touchstart', selectPlacement, { passive: false });
 }
 
+// Mobile Quick Toggle Button
+const campaignMobileToggleBtn = document.getElementById('campaign-mobile-toggle-btn');
+if (campaignMobileToggleBtn) {
+    const handleMobileToggle = (e) => {
+        e.stopPropagation();
+        selectedCampaign = (selectedCampaign === 'commute') ? 'placement' : 'commute';
+        localStorage.setItem('btech-campaign', selectedCampaign);
+        updateCampaignUI();
+        if (typeof synth !== 'undefined') {
+            synth.playCollect();
+        }
+    };
+    campaignMobileToggleBtn.addEventListener('click', handleMobileToggle);
+    campaignMobileToggleBtn.addEventListener('touchstart', handleMobileToggle, { passive: false });
+}
+
 updateCampaignUI();
