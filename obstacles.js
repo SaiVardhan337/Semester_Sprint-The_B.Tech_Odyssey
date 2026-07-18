@@ -514,33 +514,37 @@ class GameItem {
                 break;
 
             case 'hr_executive':
-                // Retro HR Executive (suit, trousers, glasses, clipboard)
-                ctx.fillStyle = '#2b303c'; // Dark Charcoal Suit Blazer
-                ctx.fillRect(this.x + 8, this.y + 15, 20, 28);
-                ctx.fillStyle = '#4c566a'; // Cool grey trousers
-                ctx.fillRect(this.x + 8, this.y + 43, 20, 27);
-                ctx.fillStyle = '#ffdbb5'; // Head/Skin
-                ctx.fillRect(this.x + 10, this.y + 2, 16, 14);
-                ctx.fillStyle = '#8fbcbb'; // Tie (Nord Blue-teal)
-                ctx.fillRect(this.x + 17, this.y + 15, 2, 10);
-                
-                // Glasses
-                ctx.strokeStyle = '#2e3440';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(this.x + 12, this.y + 5, 5, 4);
-                ctx.strokeRect(this.x + 19, this.y + 5, 5, 4);
-                ctx.beginPath();
-                ctx.moveTo(this.x + 17, this.y + 7);
-                ctx.lineTo(this.x + 19, this.y + 7);
-                ctx.stroke();
+                if (typeof isHRExecutiveLoaded !== 'undefined' && isHRExecutiveLoaded && transparentHRExecutiveCanvas) {
+                    ctx.drawImage(transparentHRExecutiveCanvas, this.x, this.y, this.width, this.height);
+                } else {
+                    // Retro HR Executive (suit, trousers, glasses, clipboard)
+                    ctx.fillStyle = '#2b303c'; // Dark Charcoal Suit Blazer
+                    ctx.fillRect(this.x + 8, this.y + 15, 20, 28);
+                    ctx.fillStyle = '#4c566a'; // Cool grey trousers
+                    ctx.fillRect(this.x + 8, this.y + 43, 20, 27);
+                    ctx.fillStyle = '#ffdbb5'; // Head/Skin
+                    ctx.fillRect(this.x + 10, this.y + 2, 16, 14);
+                    ctx.fillStyle = '#8fbcbb'; // Tie (Nord Blue-teal)
+                    ctx.fillRect(this.x + 17, this.y + 15, 2, 10);
+                    
+                    // Glasses
+                    ctx.strokeStyle = '#2e3440';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(this.x + 12, this.y + 5, 5, 4);
+                    ctx.strokeRect(this.x + 19, this.y + 5, 5, 4);
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + 17, this.y + 7);
+                    ctx.lineTo(this.x + 19, this.y + 7);
+                    ctx.stroke();
 
-                // Clipboard
-                ctx.fillStyle = '#d08770'; // Wooden Clipboard
-                ctx.fillRect(this.x + 22, this.y + 22, 10, 14);
-                ctx.fillStyle = '#eceff4'; // White sheets of evaluation paper
-                ctx.fillRect(this.x + 23, this.y + 24, 8, 11);
-                ctx.fillStyle = '#4c566a'; // Metallic clip
-                ctx.fillRect(this.x + 25, this.y + 20, 4, 3);
+                    // Clipboard
+                    ctx.fillStyle = '#d08770'; // Wooden Clipboard
+                    ctx.fillRect(this.x + 22, this.y + 22, 10, 14);
+                    ctx.fillStyle = '#eceff4'; // White sheets of evaluation paper
+                    ctx.fillRect(this.x + 23, this.y + 24, 8, 11);
+                    ctx.fillStyle = '#4c566a'; // Metallic clip
+                    ctx.fillRect(this.x + 25, this.y + 20, 4, 3);
+                }
                 break;
 
             case 'coffee_spill':

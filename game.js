@@ -97,6 +97,10 @@ const flyerImage = new Image();
 let isFlyerLoaded = false;
 let transparentFlyerCanvas = null;
 
+const hrExecutiveImage = new Image();
+let isHRExecutiveLoaded = false;
+let transparentHRExecutiveCanvas = null;
+
 const dogImage = new Image();
 let isDogImageLoaded = false;
 let transparentDogCanvas = null;
@@ -148,7 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
         preloadImage(corridorImage, 'assets/corridor.jpg', () => { isCorridorLoaded = true; }),
         preloadImage(classroomLevel3Image, 'assets/classroom_level3.png', () => { isClassroomLevel3Loaded = true; }),
         preloadImage(professorImage, 'assets/professor.png', () => { isProfessorLoaded = true; processProfessorImage(); }),
-        preloadImage(corporateHallwayBgImage, 'assets/corporate_hallway_bg.jpg', () => { isCorporateHallwayBgLoaded = true; })
+        preloadImage(corporateHallwayBgImage, 'assets/corporate_hallway_bg.jpg', () => { isCorporateHallwayBgLoaded = true; }),
+        preloadImage(hrExecutiveImage, 'assets/hr_executive.jpg', () => { isHRExecutiveLoaded = true; processHRExecutiveImage(); })
     ];
 
     Promise.all(preloadPromises).then(() => {
@@ -270,6 +275,25 @@ function processFlyerImage() {
     } catch (e) {
         console.warn("Local CORS security policy blocked flyer image manipulation. Using raw image.", e);
         tempCtx.drawImage(flyerImage, 0, 0);
+    }
+}
+
+function processHRExecutiveImage() {
+    transparentHRExecutiveCanvas = document.createElement('canvas');
+    transparentHRExecutiveCanvas.width = hrExecutiveImage.width;
+    transparentHRExecutiveCanvas.height = hrExecutiveImage.height;
+    const tempCtx = transparentHRExecutiveCanvas.getContext('2d');
+    tempCtx.drawImage(hrExecutiveImage, 0, 0);
+    try {
+        const imgData = tempCtx.getImageData(0, 0, hrExecutiveImage.width, hrExecutiveImage.height);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+        }
+        tempCtx.putImageData(imgData, 0, 0);
+    } catch (e) {
+        console.warn("Local CORS security policy blocked HR executive image manipulation. Using raw image.", e);
+        tempCtx.drawImage(hrExecutiveImage, 0, 0);
     }
 }
 
@@ -989,7 +1013,7 @@ function initGame(level = 1) {
     groundOffset = 0;
     notifTimer = 0;
     notifMilestone = 0;
-    nextNotifAt = level === 2 ? 250 : 500;
+    nextNotifAt = (level === 2 || level === 4 || level === 5) ? 250 : 500;
 
     updateHUD();
 }
@@ -1306,11 +1330,11 @@ function updateGame() {
         gameSpeed = Math.min(maxSpeed, baseSpeed + (distance * 0.005)) + boostExtra;
     }
 
-    // Win check — Level 1 ends at 1000m, Level 2 ends at 250m, Level 3 ends at 300m, Level 4/5 ends at 500m
+    // Win check — Level 1 ends at 1000m, Level 2 ends at 250m, Level 3 ends at 300m, Level 4/5 ends at 250m
     let winDistance = 1000;
     if (currentLevel === 2) winDistance = 250;
     else if (currentLevel === 3) winDistance = 300;
-    else if (currentLevel === 4 || currentLevel === 5) winDistance = 500;
+    else if (currentLevel === 4 || currentLevel === 5) winDistance = 250;
 
     if (distance >= winDistance && gameState === 'PLAYING') {
         triggerWin();
@@ -1318,7 +1342,7 @@ function updateGame() {
     }
 
     // --- WhatsApp Notification Milestones ---
-    const milestoneTarget = (currentLevel === 2) ? 250 : (currentLevel === 3 ? -1 : 500);
+    const milestoneTarget = (currentLevel === 2 || currentLevel === 4 || currentLevel === 5) ? 250 : (currentLevel === 3 ? -1 : 500);
     if (milestoneTarget !== -1 && distance >= nextNotifAt && nextNotifAt <= milestoneTarget && currentLevel !== 4 && currentLevel !== 5) {
         triggerNotification(nextNotifAt);
         nextNotifAt += 1000; // prevent re-triggering
