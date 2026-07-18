@@ -515,7 +515,12 @@ class GameItem {
 
             case 'hr_executive':
                 if (typeof isHRExecutiveLoaded !== 'undefined' && isHRExecutiveLoaded && transparentHRExecutiveCanvas) {
-                    ctx.drawImage(transparentHRExecutiveCanvas, this.x, this.y, this.width, this.height);
+                    ctx.save();
+                    // Translate to character center and scale X by -1 to flip facing left towards the hero
+                    ctx.translate(this.x + this.width, this.y);
+                    ctx.scale(-1, 1);
+                    ctx.drawImage(transparentHRExecutiveCanvas, 0, 0, this.width, this.height);
+                    ctx.restore();
                 } else {
                     // Retro HR Executive (suit, trousers, glasses, clipboard)
                     ctx.fillStyle = '#2b303c'; // Dark Charcoal Suit Blazer

@@ -288,7 +288,7 @@ function processHRExecutiveImage() {
         const imgData = tempCtx.getImageData(0, 0, hrExecutiveImage.width, hrExecutiveImage.height);
         const data = imgData.data;
         for (let i = 0; i < data.length; i += 4) {
-            if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) data[i + 3] = 0;
+            if (data[i] > 220 && data[i + 1] > 220 && data[i + 2] > 220) data[i + 3] = 0;
         }
         tempCtx.putImageData(imgData, 0, 0);
     } catch (e) {
@@ -1013,7 +1013,7 @@ function initGame(level = 1) {
     groundOffset = 0;
     notifTimer = 0;
     notifMilestone = 0;
-    nextNotifAt = (level === 2 || level === 4 || level === 5) ? 250 : 500;
+    nextNotifAt = (level === 2 || level === 5) ? 250 : 500;
 
     updateHUD();
 }
@@ -1330,11 +1330,12 @@ function updateGame() {
         gameSpeed = Math.min(maxSpeed, baseSpeed + (distance * 0.005)) + boostExtra;
     }
 
-    // Win check — Level 1 ends at 1000m, Level 2 ends at 250m, Level 3 ends at 300m, Level 4/5 ends at 250m
+    // Win check — Level 1 ends at 1000m, Level 2 ends at 250m, Level 3 ends at 300m, Level 4 ends at 500m, Level 5 ends at 250m
     let winDistance = 1000;
     if (currentLevel === 2) winDistance = 250;
     else if (currentLevel === 3) winDistance = 300;
-    else if (currentLevel === 4 || currentLevel === 5) winDistance = 250;
+    else if (currentLevel === 4) winDistance = 500;
+    else if (currentLevel === 5) winDistance = 250;
 
     if (distance >= winDistance && gameState === 'PLAYING') {
         triggerWin();
@@ -1342,7 +1343,7 @@ function updateGame() {
     }
 
     // --- WhatsApp Notification Milestones ---
-    const milestoneTarget = (currentLevel === 2 || currentLevel === 4 || currentLevel === 5) ? 250 : (currentLevel === 3 ? -1 : 500);
+    const milestoneTarget = (currentLevel === 2 || currentLevel === 5) ? 250 : (currentLevel === 3 ? -1 : 500);
     if (milestoneTarget !== -1 && distance >= nextNotifAt && nextNotifAt <= milestoneTarget && currentLevel !== 4 && currentLevel !== 5) {
         triggerNotification(nextNotifAt);
         nextNotifAt += 1000; // prevent re-triggering
