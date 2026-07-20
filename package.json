@@ -1,0 +1,24 @@
+{
+  "name": "btech-runner",
+  "version": "1.0.0",
+  "description": "Semester Sprint: The B.Tech Odyssey - Retro 2D Side-Scrolling Canvas Runner",
+  "main": "game.js",
+  "scripts": {
+    "test": "node --check game.js obstacles.js player.js audio.js",
+    "lint": "node --check game.js && node --check obstacles.js && node --check player.js && node --check audio.js"
+  },
+  "keywords": [
+    "html5-canvas",
+    "vanilla-js",
+    "web-audio-api",
+    "retro-game",
+    "chiptune",
+    "side-scroller"
+  ],
+  "author": "Sai Vardhan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SaiVardhan337/Semester_Sprint-The_B.Tech_Odyssey/issues"
+  },
+  "homepage": "https://github.com/SaiVardhan337/Semester_Sprint-The_B.Tech_Odyssey#readme"
+}

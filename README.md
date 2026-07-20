@@ -1,11 +1,21 @@
 # Semester Sprint: The B.Tech Odyssey 🏃‍♂️🎓
 
+[![CI Build](https://github.com/SaiVardhan337/Semester_Sprint-The_B.Tech_Odyssey/actions/workflows/ci.yml/badge.svg)](https://github.com/SaiVardhan337/Semester_Sprint-The_B.Tech_Odyssey/actions)
+[![Play Live Demo](https://img.shields.io/badge/Demo-Play%20Now-brightgreen.svg?style=for-the-badge&logo=vercel)](https://semester-sprint-the-b-tech-odyssey.vercel.app/)
 [![HTML5 Canvas](https://img.shields.io/badge/Engine-HTML5%20Canvas-orange.svg?style=for-the-badge&logo=html5)](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 [![Vanilla JS](https://img.shields.io/badge/Code-Vanilla%20JS-yellow.svg?style=for-the-badge&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Web Audio API](https://img.shields.io/badge/Audio-Web%20Audio%20API-blue.svg?style=for-the-badge&logo=webassembly)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 **Semester Sprint: The B.Tech Odyssey** is an action-packed 2D side-scrolling retro runner game built entirely using **HTML Canvas**, **Vanilla JavaScript**, and **CSS3**. Navigate the chaotic life of a B.Tech college student running late for DAA exams and fighting to get placed in the campus drive!
+
+![Semester Sprint: The B.Tech Odyssey Gameplay](assets/screenshot.png)
+
+---
+
+## 🌐 Live Interactive Demo
+🎮 **Play the live game immediately in your browser (Mobile & Desktop):**
+👉 **[https://semester-sprint-the-b-tech-odyssey.vercel.app/](https://semester-sprint-the-b-tech-odyssey.vercel.app/)**
 
 ---
 
@@ -73,7 +83,7 @@ All audio is generated **programmatically at runtime** using the Web Audio API (
 * **Low footprint**: Zero external `.mp3` or `.wav` dependencies.
 
 ### 2. AABB Collision Detection with Safe Padding
-A custom Axis-Aligned Bounding Box (AABB) system computes precise overlap bounds. It includes custom hit-box padding for player-friendly collision boxes, preventing frustrating near-miss crashes:
+A custom Axis-Aligned Bounding Box (AABB) system computes precise overlap bounds. It includes custom hit-box padding for player-friendly collision boxes:
 ```javascript
 getHitbox() {
     return {
@@ -94,41 +104,72 @@ Filters sprite images dynamically on load:
 ## 📂 Repository Folder Structure
 ```text
 btech-runner/
-├── index.html          # Entrypoint HTML game layout
-├── style.css           # Styling & CRT monitor layout overlay
-├── game.js            # Main loop, renderer, and campaign logic
-├── obstacles.js       # Game entity class definitions and spawner rules
-├── player.js          # Player physics, sprite maps, and jump/slide triggers
-├── audio.js           # Programmatic chiptune synthesizer sequencer
-├── assets/            # Pixel-art and character assets
-│   ├── gardens_bg.jpg
-│   ├── campus_greenery_bg.jpg
-│   ├── corporate_hallway_bg.jpg
-│   ├── boardroom_boss_bg.jpg
-│   ├── interviewer_boss.jpg
-│   ├── hr_executive.jpg
-│   └── ...
-└── README.md          # Project documentation
+├── index.html                  # Entrypoint HTML game layout
+├── style.css                   # Styling & CRT monitor layout overlay
+├── game.js                    # Main loop, renderer, and campaign logic
+├── obstacles.js               # Game entity class definitions and spawner rules
+├── player.js                  # Player physics, sprite maps, and jump/slide triggers
+├── audio.js                   # Programmatic chiptune synthesizer sequencer
+├── package.json               # NPM scripts for linting and test execution
+├── LICENSE                    # MIT License
+├── CONTRIBUTING.md            # Contribution guidelines & good first issues
+├── .github/
+│   ├── workflows/ci.yml       # GitHub Actions CI automated syntax runner
+│   └── ISSUE_TEMPLATE/        # Bug report and feature request templates
+├── examples/                  # Standalone usage examples
+│   ├── README.md
+│   ├── standalone-audio-synth.html
+│   └── canvas-runner-basic.html
+└── assets/                    # Pixel-art and character assets
+    ├── gardens_bg.jpg
+    ├── campus_greenery_bg.jpg
+    ├── corporate_hallway_bg.jpg
+    ├── boardroom_boss_bg.jpg
+    ├── interviewer_boss.jpg
+    ├── hr_executive.jpg
+    └── screenshot.png
 ```
 
 ---
 
-## 🛠️ How to Run Locally
+## 💡 Standalone Examples
 
-### Option A: Open Directly
-Simply open `index.html` in any web browser of your choice.
+Check out the [`examples/`](examples/) folder for isolated, lightweight mini-demos:
+* **`examples/standalone-audio-synth.html`**: Interactive Web Audio API chiptune synthesizer demo.
+* **`examples/canvas-runner-basic.html`**: 80-line standalone HTML5 Canvas runner prototype.
 
-### Option B: Local Web Server (Recommended)
-Running a local web server ensures correct CORS origin policies for canvas pixel manipulation:
+---
 
+## 🛠️ How to Run & Test Locally
+
+### 1. Run Tests & Syntax Validation
+```bash
+npm test
+```
+
+### 2. Launch Local Development Server
 #### Using Node.js:
 ```bash
 npx http-server
 ```
-
 #### Using Python:
 ```bash
-# Python 3
 python -m http.server 8000
 ```
 Then open [http://localhost:8000](http://localhost:8000) in your browser.
+
+---
+
+## 🤝 Contributing & Good First Issues
+We welcome contributions! Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for details on submitting pull requests, code style guidelines, and beginner-friendly **Good First Issues**.
+
+---
+
+## 🏷️ Recommended GitHub Topics & Tags
+When configuring the GitHub repository settings, add the following topics:
+`html5-canvas` • `vanilla-javascript` • `web-audio-api` • `retro-game` • `chiptune` • `endless-runner` • `btech-odyssey` • `game-development`
+
+---
+
+## 📜 License
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.

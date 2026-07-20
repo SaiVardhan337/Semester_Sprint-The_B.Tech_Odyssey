@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal HTML5 Canvas Runner - Example</title>
+    <style>
+        body {
+            background: #111;
+            color: #fff;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        canvas {
+            border: 4px solid #333;
+            background: #87ceeb;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        p { margin-top: 10px; font-size: 14px; color: #aaa; }
+    </style>
+</head>
+<body>
+    <h2>🏃 Minimal 2D Canvas Runner Demo</h2>
+    <canvas id="gameCanvas" width="600" height="300"></canvas>
+    <p>Press <strong>Spacebar</strong> to Jump | <strong>Down Arrow</strong> to Slide</p>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const player = {
+            x: 50,
+            y: 200,
+            width: 30,
+            height: 50,
+            vy: 0,
+            gravity: 0.8,
+            groundY: 200,
+            isJumping: false,
+            isSliding: false
+        };
+
+        let groundOffset = 0;
+
+        function update() {
+            // Physics
+            player.y += player.vy;
+            player.vy += player.gravity;
+
+            if (player.y >= player.groundY) {
+                player.y = player.groundY;
+                player.vy = 0;
+                player.isJumping = false;
+            }
+
+            // Scroll ground
+            groundOffset = (groundOffset + 4) % 40;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Sky
+            ctx.fillStyle = '#87ceeb';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Ground
+            ctx.fillStyle = '#4a2e19';
+            ctx.fillRect(0, player.groundY + 50, canvas.width, 50);
+
+            // Grass top
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(0, player.groundY + 50, canvas.width, 8);
+
+            // Ground dashes
+            ctx.fillStyle = '#ffeb3b';
+            for (let x = -40; x < canvas.width + 40; x += 40) {
+                ctx.fillRect(x - groundOffset, player.groundY + 70, 20, 4);
+            }
+
+            // Player box
+            ctx.fillStyle = player.isSliding ? '#ff5722' : '#2196f3';
+            const drawH = player.isSliding ? 25 : player.height;
+            const drawY = player.isSliding ? player.y + 25 : player.y;
+            ctx.fillRect(player.x, drawY, player.width, drawH);
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && !player.isJumping) {
+                player.vy = -13;
+                player.isJumping = true;
+            }
+            if (e.code === 'ArrowDown') {
+                player.isSliding = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowDown') {
+                player.isSliding = false;
+            }
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>
